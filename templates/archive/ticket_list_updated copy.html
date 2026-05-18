@@ -1,0 +1,613 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Ticket- List{% endblock %}
+
+{% block style_head %}
+  <link rel="stylesheet" href="{% static 'ticket/css/all.min.css' %}">
+  <!-- <link rel="stylesheet" href="{% static 'ticket/css/my_style.css' %}"> -->
+  <link rel="stylesheet" href="{% static 'ticket/css/style.css' %}">
+{% endblock %}
+
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+
+  {# DataTables CSS: core + Bootstrap 5 integration #}
+  <!-- <link rel="stylesheet" href="{% static 'css/jquery.dataTables.min.css' %}"> -->
+   <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<style>/* Make only the header row blue */
+#ticketTable thead tr {
+  background-color: #0d6efd !important; /* Bootstrap primary blue */
+}
+
+/* Let the blue show through + readable text */
+#ticketTable thead th {
+  background-color: transparent !important;
+  color: #fff;                          /* white text */
+  border-color: rgba(255,255,255,0.3);  /* softer borders */
+}
+</style>
+<div class="container py-4">
+
+  {% if messages %}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+      {% for message in messages %}
+        <div class="toast align-items-center text-white bg-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} border-0 show mb-2">
+          <div class="d-flex">
+            <div class="toast-body">
+              {% if message.tags == 'success' %} ✅
+              {% elif message.tags == 'error' %} ❌
+              {% elif message.tags == 'warning' %} ⚠️
+              {% elif message.tags == 'info' %} ℹ️
+              {% endif %}
+              {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="card mb-6 mt-4 main-card">
+    
+    <div class="card-widget-separator-wrapper">
+      <div class="card-body card-widget-separator">
+        <div class="row gy-4 gy-sm-1">
+          <!-- <div class="col-md-1"></div> -->
+
+          <div class="col-md-3">
+            <form method="get" class="filter-form">
+              <input type="hidden" name="status" value="all">
+              <button type="submit" class="dashboard_top btn p-0 w-100 border-0 bg-transparent text-center">
+                <div class="dashboard">
+                  <h4 class="h_das_ticket">{{ total_tickets }}</h4>
+                  <p class="p_das_ticket">Total SIB Query</p>
+                </div>
+              </button>
+            </form>
+          </div> 
+
+          <div class="col-md-3">
+            <form method="get" class="filter-form">
+              <input type="hidden" name="status" value="open">
+              <button type="submit" class="dashboard_top btn p-0 w-100 border-0 bg-transparent text-center">
+                <div class="dashboard">
+                  <h4 class="h_das_ticket">{{ pending_tickets }}</h4>
+                  <p class="p_das_ticket">Pending SIB Query</p>
+                </div>
+              </button>
+            </form>
+          </div>
+
+          <div class="col-md-3">
+            <form method="get" class="filter-form">
+              <input type="hidden" name="status" value="reopened">
+              <button type="submit" class="dashboard_top btn p-0 w-100 border-0 bg-transparent text-center">
+                <div class="dashboard">
+                  <h4 class="h_das_ticket">{{ reopened_tickets }}</h4>
+                  <p class="p_das_ticket">Reopen SIB Query</p>
+                </div>
+              </button>
+            </form>
+          </div> 
+          <div class="col-md-3">
+            <form method="get" class="filter-form">
+              <input type="hidden" name="status" value="closed">
+              <button type="submit" class="dashboard_top btn p-0 w-100 border-0 bg-transparent text-center">
+                <div class="dashboard">
+                  <h4 class="h_das_ticket">{{ closed_tickets }}</h4>
+                  <p class="p_das_ticket">Closed SIB Query</p>
+                </div>
+              </button>
+            </form>
+          </div>
+
+          <!-- <div class="col-md-1"></div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card main-card mb-4 mt-4">
+    <div class="card-header d-flex align-items-center">
+      <h5 class="mb-0">SIB Query</h5>
+      
+      <a href="{% url 'tickets:import_page' %}" class="btn btn-primary " style="margin-left: 46rem;">
+        <span class="d-none d-sm-inline">
+          <svg width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+          </svg> Application details
+        </span>
+      </a>
+     
+      
+      {% if create_ticket %}
+      <a href="{% url 'tickets:create_ticket' %}" class="btn btn-primary " style="    margin-left: 1rem;">
+        <span class="d-none d-sm-inline">
+          <svg width="16" height="16" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+          </svg> Create SIB Query
+        </span>
+      </a>
+      {%endif%}
+      {% if user.is_superuser %}
+      <a href="{% url 'tickets:first_form' %}" class="btn btn-primary" style="
+      {% if create_ticket %}
+        margin-left: 1rem;
+      {% else %}
+        margin-left: 74rem;
+      {%endif%}
+       ">
+        <span class="d-none d-sm-inline"><i class="fa fa-upload" aria-hidden="true"></i>SIB Query
+          <!-- <svg width="16" height="16" fill="currentColor" class="fa fa-upload" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+          </svg> -->
+        </span>
+      </a>
+      {%endif%}
+    </div>
+   
+    
+    <div class="card-body bg-body-tertiary border-top">
+      
+      {# 🔹 NEW: Date range filter UI goes here 🔹 #}
+      <div class="row mb-3">
+        <form method="get" class="row g-2">
+          <div class="col-md-3">
+            <label class="form-label">From date</label>
+            <input type="date"
+                   name="from_date"
+                   class="form-control"
+                   value="{{ from_date }}">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">To date</label>
+            <input type="date"
+                   name="to_date"
+                   class="form-control"
+                   value="{{ to_date }}">
+          </div>
+
+          {# keep existing filters in the URL when you submit #}
+          <input type="hidden" name="status" value="{{ status_filter }}">
+          <input type="hidden" name="module" value="{{ module_filter }}">
+          <input type="hidden" name="search" value="{{ search_query }}">
+
+          <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary me-2">Filter</button>
+            <a href="{% url 'tickets:ticket_list' %}" class="btn btn-outline-secondary">
+              Reset
+            </a>
+          </div>
+        </form>
+      </div>
+      {# 🔹 END NEW UI 🔹 #}
+
+      <div class="table-responsive">
+        <table id="ticketTable" class="table table-hover table-striped table-bordered nowrap align-middle" style="width:100%">
+          <thead>
+            <tr class="bg-primary text-white">
+              <th>#</th>
+              <!-- <th>Module</th> -->
+              <th>Association Name</th>
+              <th>Created By</th>
+              <!-- <th>Reassigned?</th> -->
+              {% if create_ticket %}
+                  <th>Assigned Users</th>
+              {%endif%}
+              <!-- <th>Status</th> -->
+              <th>Created At</th>
+              <th style="min-width:10rem;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if tickets %}
+              {% for ticket in tickets %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <!-- <td>{{ ticket.models_name|default:"-" }}</td> -->
+                  <td>{{ ticket.models_object|default:"-" }}</td>
+
+                  <td>
+                    {% if ticket.created_by %}
+                      {{ ticket.created_by.first_name|default:ticket.created_by.first_name }} {{ ticket.created_by.last_name|default:ticket.created_by.last_name }}
+                    {% elif ticket.ticket.created_by %}
+                      {{ ticket.ticket.created_by.first_name|default:ticket.ticket.created_by.first_name }} {{ ticket.ticket.created_by.last_name|default:ticket.ticket.created_by.last_name }}
+                    {% else %}-{% endif %}
+                  </td>
+
+                 
+                {% if create_ticket %}
+                  <td>
+                    {% if ticket.created_by == request.user %}
+                      {% if ticket.current_assignees %}
+                        {% for u in ticket.current_assignees %}
+                          {{ u.get_full_name|default:u.first_name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                      {% else %}--{% endif %}
+                    {% else %}--{% endif %}
+                  </td>
+                {%endif%}
+
+                  <!-- <td>
+                    
+                    {% if ticket.status == "open" %}
+                      <span class="badge status_open">Open</span>
+                    {% elif ticket.status == "assigned" %}
+                      <span class="badge status_assign">Assigned</span>
+                    {% elif ticket.status == "closed" %}
+                      <span class="badge " style="background-color:color-mix(in sRGB, #fff 85%, #ff3e1d) !important;color: #ff3e1d !important;">Closed</span>
+                    {% elif ticket.status == "reopened" %}
+                      <span class="badge status_reopen">Reopened</span>
+                    {% else %}
+                      <span class="badge bg-light text-dark">{{ ticket.status|capfirst }}</span>
+                    {% endif %}
+                  </td> -->
+                  <td>{{ ticket.created_at|date:"d M Y H:i" }}</td>
+                  <td>
+                    {# ONE eye icon #}
+                    {% if request.user == ticket.created_by %}
+                      {# Creator: never force a reassignment lens, always base ticket view #}
+                      <a href="{% url 'tickets:ticket_detail' ticket.pk %}{% if ticket.best_ra_id %}?reassign={{ ticket.best_ra_id }}{% endif %}"
+                         class="bottom-tooltip" title="View ticket detail">
+                        <i class="fa fa-eye"></i>
+                        <span class="bottom-tooltip-text">View ticket detail</span>
+                      </a>
+                    {% else %}
+                      {# Other users: if best_ra_id exists, open that reassignment; otherwise ticket #}
+                      <a href="{% url 'tickets:ticket_detail' ticket.pk %}{% if ticket.best_ra_id %}?reassign={{ ticket.best_ra_id }}{% endif %}"
+                         class="bottom-tooltip" title="View ticket detail">
+                        <i class="fa fa-eye"></i>
+                        <span class="bottom-tooltip-text">
+                          View {% if ticket.best_ra_id %}reassign{% else %}ticket{% endif %} detail
+                        </span>
+                      </a>
+                    {% endif %}
+                    {% if request.user == ticket.created_by and ticket.status != "closed" and ticket.has_report %}
+                    <button class="bottom-tooltip_reassign reassignBtn" title="Reassign"
+                            data-ticket-id="{{ ticket.id }}">
+                      <i class="fa fa-repeat"></i>
+                      <span class="bottom-tooltip_reassign-text">Reassign</span>
+                    </button>
+                  {% endif %}
+                    <!-- {% if request.user == ticket.created_by and ticket.status != "closed" %}
+                      <button class="bottom-tooltip_reassign reassignBtn" title="Reassign"
+                              data-ticket-id="{{ ticket.id }}">
+                        <i class="fa fa-repeat"></i>
+                        <span class="bottom-tooltip_reassign-text">Reassign</span>
+                      </button>
+                    {% endif %} -->
+                  
+                    {% if request.user == ticket.created_by %}
+                      <a href="{% url 'tickets:view_ticket_history' ticket.id %}"
+                         class="bottom-tooltip" title="View history">
+                        <i class="fas fa-history"></i>
+                        <span class="bottom-tooltip-text">View history</span>
+                      </a>
+                    {% endif %}
+                  </td>
+                  
+                  
+                </tr>
+              {% endfor %}
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination Controls -->
+    {% if tickets.has_other_pages %}
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap">
+        <div class="mb-2 mb-md-0">
+          <p class="mb-0 small text-muted">
+            Showing {{ tickets.start_index }} to {{ tickets.end_index }} of {{ tickets.paginator.count }} entries
+          </p>
+        </div>
+
+        <nav aria-label="Page navigation">
+          <ul class="pagination mb-0">
+            {% if tickets.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ tickets.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if module_filter %}&module={{ module_filter }}{% endif %}" aria-label="Previous">
+                  &laquo;
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+            {% endif %}
+
+            {% for i in tickets.paginator.page_range %}
+              {% if tickets.number == i %}
+                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+              {% elif i > tickets.number|add:'-3' and i < tickets.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if module_filter %}&module={{ module_filter }}{% endif %}">{{ i }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if tickets.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ tickets.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if module_filter %}&module={{ module_filter }}{% endif %}" aria-label="Next">
+                  &raquo;
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+    {% endif %}
+    </div>
+  </div>
+
+  {# Reassign Modal #}
+  <div id="reassignModal" class="modal" style="display:none;">
+    <div class="modal-content p-3" style="margin-left: 17rem; width: 871px; margin-top: 7rem;">
+      <h5>Re-assign SIB Query</h5>
+      <form id="userForm" method="POST" data-ticket-id="">
+        {% csrf_token %}
+        <div id="reassignRow" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Select State</label>
+            <select class="form-select state-select" name="state" required>
+              <option value="">Select State</option>
+              {% for state in states %}
+                <option value="{{ state.id }}">{{ state.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Select Group</label>
+            <select class="form-select group-select" name="group" required>
+              <option value="">-- Select Group --</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Select User</label>
+            <select class="form-select user-select" name="user_id" required>
+              <option value="">-- Select User --</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-3 mt-3">
+          <label for="reason" class="form-label">Reason</label>
+          <textarea class="form-control reason" id="reason" name="reason" placeholder="Enter SIB Query description..."></textarea>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+          <button id="submitReassign" type="submit" class="btn btn-primary">Re-assign</button>
+          <button id="closeReassign" type="button" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# Reopen Ticket Modal #}
+  <div class="modal fade" id="reopenTicketModal" tabindex="-1" aria-labelledby="reopenTicketModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <form id="reopenTicketForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reopenTicketModalLabel">Reopen SIB Query</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="reopenTicketId" name="ticket_id">
+            <div class="mb-3">
+              <label class="form-label">Reason for Reopening</label>
+              <textarea name="reason" class="form-control" required></textarea>
+            </div>
+            <div id="reopenAnswersDiv"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-warning">Reopen SIB Query</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/jquery.validate.js' %}"></script>
+<script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/SweetAlert2.js' %}"></script>
+
+  <script>
+    
+  $(document).ready(function()
+  {
+
+    
+  const $table = $('#ticketTable');
+  const createdAtIdx = $table.find('thead th').filter(function () 
+  {
+    return $(this).text().trim().toLowerCase() === 'created at';
+  }).index();
+
+  $table.DataTable({
+    paging: false,
+    info: false,
+    searching: false,
+    ordering: true,
+    order: (createdAtIdx >= 7) ? [[createdAtIdx, 'desc']] : [],
+    lengthChange: false,
+    autoWidth: false,
+    // Usually the last column is “Actions” and should NOT be orderable:
+    columnDefs: [{ targets: -1, orderable: false }],
+    language: { emptyTable: "No SIB Query found." }
+  });
+
+
+    // ----- Reassign modal logic -----
+    const reassignModal = $('#reassignModal');
+    const stateSelect = $('.state-select');
+    const groupSelect = $('.group-select');
+    const userSelect = $('.user-select');
+    const questionsContainer = $('#reassignQuestionsContainer');
+    const questions = JSON.parse('{{ questions|escapejs }}' || '[]');
+
+    function populateQuestions() {
+      if (!questionsContainer || !questionsContainer.length) return;
+      questionsContainer.html(`
+        <label class="form-label">Select Questions</label>
+        <div class="row">
+          ${questions.map(q => `<div class="col-md-6"><div class="form-check">
+            <input class="form-check-input" type="checkbox" name="questions[]" value="${q.id}" checked>
+            <label class="form-check-label">${q.text}</label>
+          </div></div>`).join('')}
+        </div>
+      `);
+    }
+    populateQuestions();
+
+    stateSelect.on('change', function(){
+      const stateId = $(this).val();
+      groupSelect.html('<option value="">-- Select Group --</option>');
+      userSelect.html('<option value="">-- Select User --</option>');
+      if(stateId){
+        $.getJSON(`/tickets/units/?state_id=${stateId}`, data => {
+          (data.units || []).forEach(unit => groupSelect.append(new Option(unit, unit)));
+        });
+      }
+    });
+
+    groupSelect.on('change', function(){
+      const stateId = stateSelect.val();
+      const unit = $(this).val();
+      userSelect.html('<option value="">-- Select User --</option>');
+      if(stateId && unit){
+        $.getJSON(`/tickets/users/?state_id=${stateId}&unit=${encodeURIComponent(unit)}`, data => {
+          (data.users || []).forEach(user => userSelect.append(new Option(user.name, user.id)));
+        });
+      }
+    });
+
+    $('.reassignBtn').on('click', function(){
+      const ticketId = $(this).data('ticket-id');
+      $('#userForm').attr('data-ticket-id', ticketId);
+      reassignModal.show();
+    });
+
+    $('#closeReassign').on('click', function(e){ e.preventDefault(); reassignModal.hide(); });
+    $(window).on('click', function(e){ if(e.target.id==='reassignModal') reassignModal.hide(); });
+
+    $('#userForm').on('submit', function(e){
+      e.preventDefault();
+      const ticketId = $(this).data('ticket-id');
+      const url = `/tickets/reassign_ticket/${ticketId}/`;
+      const formData = {
+        state: stateSelect.val(),
+        group: groupSelect.val(),
+        user: userSelect.val(),
+        reason: $('.reason').val(),
+        questions: []
+      };
+      $('#reassignQuestionsContainer input:checked').each(function(){ formData.questions.push($(this).val()); });
+
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You are about to reassign this SIB Query.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, reassign it!"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: JSON.stringify(formData),
+            headers: { 'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val() },
+            contentType: 'application/json',
+            beforeSend: function () {
+              Swal.fire({
+                title: "Processing...",
+                text: "Please wait while the SIB Query is being reassigned.",
+                didOpen: () => Swal.showLoading(),
+                allowOutsideClick: false,
+                allowEscapeKey: false
+              });
+            },
+            success: function (res) {
+              Swal.close();
+              if (res.responseCode == 200 || res.responseCode == "200") {
+                Swal.fire({
+                  title: "Success!",
+                  text: res.responseMessage,
+                  icon: "success",
+                  timer: 2000,
+                  showConfirmButton: false
+                }).then(() => { location.reload(); });
+              } else {
+                Swal.fire({
+                  title: "Error!",
+                  text: res.responseMessage,
+                  icon: "error"
+                }).then(() => { location.reload(); });
+              }
+            },
+            error: function (xhr) {
+              Swal.close();
+              Swal.fire({
+                title: "Error!",
+                text: "Something went wrong while reassigning the ticket.",
+                icon: "error"
+              }).then(() => { location.reload(); });
+              console.error(xhr.responseText);
+            }
+          });
+        }
+      });
+    });
+
+    // ----- Reopen modal logic -----
+    const reopenBtn = document.getElementById('reopenTicketBtn');
+    const reopenModal = new bootstrap.Modal(document.getElementById('reopenTicketModal'));
+    const reopenAnswersDiv = document.getElementById('reopenAnswersDiv');
+    const reopenTicketIdInput = document.getElementById('reopenTicketId');
+
+    reopenBtn?.addEventListener('click', function() {
+      const ticketId = this.getAttribute('data-ticket-id');
+      reopenTicketIdInput.value = ticketId;
+      reopenAnswersDiv.innerHTML = 'Loading questions...';
+      reopenModal.show();
+
+      fetch(`/tickets/api/reopen_questions/${ticketId}/`)
+        .then(res => res.json())
+        .then(data => {
+          const questions = data.questions || [];
+          if(!questions.length){
+            reopenAnswersDiv.innerHTML = '<p>No questions found.</p>';
+            return;
+          }
+          reopenAnswersDiv.innerHTML = questions.map((q) => `
+            <div class="mb-3">
+              <label class="form-label">${q.text}</label>
+              <textarea name="questions[${q.id}]" class="form-control" required>${q.answer || ''}</textarea>
+            </div>
+          `).join('');
+        })
+        .catch(err => {
+          console.error(err);
+          reopenAnswersDiv.innerHTML = '<p>Error loading questions.</p>';
+        });
+    });
+  });
+
+
+  
+  </script>
+{% endblock %}

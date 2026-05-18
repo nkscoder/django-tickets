@@ -1,0 +1,659 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#111827;
+    --muted:#6b7280;
+    --border:#e5e7eb;
+    --border2:#d1d5db;
+    --accent:#2563eb;
+    --accent2:#1d4ed8;
+    --success:#16a34a;
+    --danger:#dc2626;
+
+    --radius:18px;
+    --shadow: 0 16px 44px rgba(0,0,0,.10);
+    --shadow2: 0 10px 24px rgba(0,0,0,.08);
+  }
+
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  }
+
+  .wrap{
+    max-width: 1020px;
+    margin: 0 auto;
+    padding: 26px 18px;
+  }
+
+  .header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:12px;
+    margin-bottom: 14px;
+  }
+
+  .header h2{
+    margin:0;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing:-.02em;
+    line-height:1.1;
+  }
+
+  .header p{
+    margin:13px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+  }
+
+  .dz{
+    border: 2px dashed var(--border2);
+    border-radius: 16px;
+    padding: 18px;
+    cursor: pointer;
+    background: linear-gradient(180deg, #fff, #fbfbfd);
+    box-shadow: var(--shadow2);
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    user-select:none;
+  }
+  .dz:hover{
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 18px 44px rgba(0,0,0,.12);
+  }
+  .dz.green{
+    border-color: var(--success);
+  }
+
+  .dz-row{
+    display:flex;
+    gap: 14px;
+    align-items:center;
+  }
+
+  .dz-icon{
+    width: 46px; height: 46px;
+    border-radius: 14px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(37,99,235,.10);
+    color: var(--accent);
+    font-size: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,.08);
+  }
+
+  .dz-title{
+    font-weight: 900;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .dz-sub{
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 13px;
+    word-break: break-word;
+  }
+
+  .btn{
+    height: 46px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--accent);
+    color:#fff;
+    font-weight: 900;
+    padding: 0 18px;
+    cursor:pointer;
+    box-shadow: 0 14px 30px rgba(37,99,235,.18);
+    transition: transform .14s ease, background .14s ease, box-shadow .14s ease, opacity .14s ease;
+  }
+  .btn:hover{
+    background: var(--accent2);
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px rgba(37,99,235,.22);
+  }
+  .btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+  }
+
+  .actions{ margin-top: 14px; display:flex; gap: 10px; }
+
+  /* Q/A Table inside modal */
+  .qa-table{ width:100%; border-collapse:collapse; }
+  .qa-table th, .qa-table td{
+    border: 1px solid var(--border);
+    padding: 12px;
+    vertical-align: top;
+    background: #fff;
+  }
+  .qa-table th{
+    background:#f9fafb;
+    text-transform:uppercase;
+    font-size: 12px;
+    letter-spacing: .06em;
+    font-weight: 900;
+    color:#374151;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  textarea.ansBox{
+    width:100%;
+    min-height: 76px;
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 10px;
+    outline: none;
+    font: inherit;
+    line-height: 1.35;
+    background: #fff;
+    transition: box-shadow .14s ease, border-color .14s ease, transform .14s ease;
+  }
+  textarea.ansBox:focus{
+    border-color: rgba(37,99,235,.55);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    transform: translateY(-1px);
+  }
+
+  .ans-missing{
+    border: 2px solid var(--danger) !important;
+    background: #fef2f2 !important;
+  }
+
+  /* NGO picker inside modal */
+  .ngo-box{
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    background: #fff;
+  }
+  .ngo-input{
+    width:100%;
+    height: 42px;
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 0 12px;
+    outline: none;
+    transition: box-shadow .14s ease, border-color .14s ease;
+  }
+  .ngo-input:focus{
+    border-color: rgba(37,99,235,.55);
+    box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+  }
+  .ngo-results{
+    display:none;
+    border:1px solid var(--border);
+    border-radius: 14px;
+    background:#fff;
+    margin-top:8px;
+    overflow:hidden;
+    max-height:240px;
+    overflow-y:auto;
+  }
+  .ngo-item{
+    padding:10px 12px;
+    cursor:pointer;
+    border-top:1px solid #f3f4f6;
+    font-size: 13px;
+  }
+  .ngo-item:hover{ background:#f9fafb; }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: 12px;
+  }
+  .badge-red{ background:#fee2e2; color:#991b1b; }
+  .badge-green{ background:#dcfce7; color:#166534; }
+
+  /* SweetAlert theme */
+  .swal2-popup.clean-popup{
+    border-radius: 18px !important;
+    box-shadow: 0 22px 60px rgba(0,0,0,.18) !important;
+  }
+  .swal2-title.clean-title{ font-weight: 900 !important; }
+  .swal2-confirm.clean-confirm{
+    border-radius: 12px !important;
+    font-weight: 900 !important;
+    background: var(--accent) !important;
+  }
+  .swal2-cancel.clean-cancel{
+    border-radius: 12px !important;
+    font-weight: 900 !important;
+    background: #6b7280 !important;
+  }
+</style>
+
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h2>Upload Excel → Preview NGO + Q/A → Create Ticket</h2>
+      <p>Preview all questions, edit answers, then create ticket.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <label class="dz" id="dropzone">
+      <div class="dz-row">
+        <div class="dz-icon">📄</div>
+        <div>
+          <div class="dz-title">Drop Excel here or click to browse</div>
+          <div class="dz-sub" id="dzFile">(.xlsx only)</div>
+        </div>
+      </div>
+      <input type="file" id="excel" accept=".xlsx" style="display:none;">
+    </label>
+
+    <div class="actions">
+      <button class="btn" id="btnPreview" disabled>Preview</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/SweetAlert2.js' %}"></script>
+<script>
+/* ===============================
+   UTILITIES
+================================ */
+function getCookie(name){
+  const v = document.cookie.split("; ").find(r => r.startsWith(name + "="));
+  return v ? decodeURIComponent(v.split("=")[1]) : null;
+}
+function escapeHtml(s){
+  return (s || "").toString().replace(/[&<>"]/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"
+  }[c]));
+}
+
+/* ===============================
+   STATE
+================================ */
+const excelEl = document.getElementById("excel");
+const dz = document.getElementById("dropzone");
+const dzFile = document.getElementById("dzFile");
+const btnPreview = document.getElementById("btnPreview");
+
+let selectedFile = null;
+let isPreviewRunning = false;
+
+// NGO selection state inside modal
+let selectedNgoId = null;
+let selectedNgoName = "";
+
+/* ===============================
+   UNMATCHED UI
+================================ */
+function buildUnmatchedHtml(unmatched){
+  if(!Array.isArray(unmatched) || !unmatched.length) return "";
+  return `
+    <hr style="margin:12px 0;">
+    <div style="max-height:60vh;overflow:auto">
+      ${unmatched.map((x,i)=>`
+        <div style="border:1px solid #e5e7eb;border-radius:14px;padding:12px;margin-top:10px;">
+          <b>${i+1}.</b> ${escapeHtml(x.excel_question)}
+          <div style="margin-top:6px;font-size:12px;color:#6b7280">
+            Closest DB: ${escapeHtml(x.best_db_suggestion||"-")}
+            &nbsp; (${Math.round((x.best_score||0)*100)}%)
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+/* ===============================
+   FILE PICK / AUTO PREVIEW
+================================ */
+excelEl.addEventListener("change", ()=>{
+  selectedFile = excelEl.files[0] || null;
+  if(!selectedFile) return;
+
+  dz.classList.add("green");
+  dzFile.textContent = selectedFile.name;
+  btnPreview.disabled = false;
+
+  // ✅ allow selecting the SAME file again later
+  excelEl.value = "";
+
+  runPreview(); // ✅ auto preview
+});
+
+btnPreview.addEventListener("click", runPreview);
+
+/* ===============================
+   PREVIEW
+================================ */
+async function runPreview(){
+  if(isPreviewRunning || !selectedFile) return;
+  isPreviewRunning = true;
+
+  const fd = new FormData();
+  fd.append("excel", selectedFile);
+
+  Swal.fire({
+    title:"Reading Excel...",
+    allowOutsideClick:false,
+    didOpen:()=>Swal.showLoading()
+  });
+
+  let data;
+  try{
+    const res = await fetch("{% url 'tickets:preview_excel' %}", {
+      method:"POST",
+      body: fd,
+      headers:{ "X-CSRFToken": getCookie("csrftoken") },
+      credentials:"same-origin"
+    });
+    data = await res.json();
+  }catch(e){
+    Swal.fire("Error","Network error","error");
+    isPreviewRunning = false;
+    return;
+  }
+
+  // ❌ PREVIEW FAILED (Retry without refresh)
+  if(data.responseCode !== 200){
+    const retry = await Swal.fire({
+      icon:"error",
+      title:"Preview Failed",
+      width:900,
+      html: `
+        <div style="text-align:left">
+          <b>${escapeHtml(data.responseMessage||"Error")}</b>
+          ${buildUnmatchedHtml(data.unmatched_questions)}
+          <div style="margin-top:10px;color:#6b7280;font-size:12px">
+            Fix from admin, then click <b>Retry</b> (no page refresh needed).
+          </div>
+        </div>
+      `,
+      showCancelButton:true,
+      confirmButtonText:"Retry",
+      cancelButtonText:"Close"
+    });
+
+    isPreviewRunning = false;
+
+    if(retry.isConfirmed){
+      runPreview(); // ✅ retry with same file
+    }
+    return;
+  }
+
+  isPreviewRunning = false;
+  showPreviewModal(data);
+}
+
+/* ===============================
+   NGO SEARCH (modal) - FIXED
+   Supports backend returning:
+   - Array directly: [ {id, association_name, rcn}, ... ]
+   - OR object: {rows:[...]} / {results:[...]}
+================================ */
+let ngoSearchTimer = null;
+
+async function searchNgo(q){
+  const res = await fetch("{% url 'tickets:search_ngo' %}?q=" + encodeURIComponent(q), {
+    method:"GET",
+    credentials:"same-origin"
+  });
+
+  let out;
+  try{
+    out = await res.json();
+  }catch(e){
+    return [];
+  }
+
+  if(Array.isArray(out)) return out;
+  if(Array.isArray(out.rows)) return out.rows;
+  if(Array.isArray(out.results)) return out.results;
+  return [];
+}
+
+function getNgoLabel(ngo){
+  return (ngo.association_name || ngo.name || ngo.candidate_name || "").toString();
+}
+
+function ngoResultsHtml(list){
+  if(!Array.isArray(list) || !list.length){
+    return `<div class="ngo-item" style="color:#6b7280;cursor:default">No results</div>`;
+  }
+
+  return list.map(x=>{
+    const label = getNgoLabel(x);
+    const rcn = (x.rcn || "").toString().trim();
+
+    return `
+      <div class="ngo-item" data-id="${x.id}" data-name="${escapeHtml(label)}">
+        <div style="font-weight:700">${escapeHtml(label)}</div>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px">
+          RCN: ${escapeHtml(rcn || "-")}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* ===============================
+   PREVIEW MODAL
+   ✅ Issue #1 fixed: blank answers highlighted by default + live remove
+   ✅ NGO Search added & fixed for your backend response
+================================ */
+async function showPreviewModal(data)
+{
+  // reset modal NGO state
+  selectedNgoId = data.ngo?.id || null;
+  selectedNgoName = data.ngo?.candidate_name || "";
+
+  const rowsHtml = (data.rows || []).map((r,i)=>{
+    const ans = (r.answer || "").trim();
+    const missingClass = ans ? "" : "ans-missing"; // ✅ highlight by default
+    return `
+      <tr>
+        <td style="width:48%">
+          <b>${i+1}.</b> ${escapeHtml(r.excel_question)}
+        </td>
+        <td style="width:52%">
+          <textarea class="ansBox ${missingClass}" data-qid="${r.question_id}"
+            style="width:100%;min-height:70px">${escapeHtml(r.answer||"")}</textarea>
+          <div style="font-size:12px;color:#6b7280">Match: ${r.match_percent}%</div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  const ngoMatched = !!data.ngo?.matched && !!data.ngo?.id;
+
+  const result = await Swal.fire({
+    title:"Preview Q/A",
+    width:1100,
+    html: `
+      <div style="text-align:left;margin-bottom:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div>
+            <b>NGO:</b>
+            <span id="ngoLabel">${escapeHtml(data.ngo?.candidate_name||"-")}</span>
+            <span id="ngoBadge" class="badge ${ngoMatched ? "badge-green":"badge-red"}" style="margin-left:8px">
+              ${ngoMatched ? "Matched" : "Not Matched"}
+            </span>
+          </div>
+        </div>
+
+        <div class="ngo-box" style="margin-top:10px">
+          <div style="font-size:12px;color:#6b7280;margin-bottom:6px">
+            Search & select NGO (required if not matched automatically)
+          </div>
+          <input id="ngoSearch" class="ngo-input" placeholder="Type NGO name..." value="${escapeHtml(selectedNgoName)}" />
+          <div id="ngoResults" class="ngo-results"></div>
+        </div>
+      </div>
+
+      <div style="max-height:65vh;overflow:auto">
+        <table class="qa-table">
+          <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>
+    `,
+    showCancelButton:true,
+    confirmButtonText:"Create Ticket",
+
+    didOpen: () => {
+      // ✅ live highlight for answers
+      document.querySelectorAll(".ansBox").forEach(el=>{
+        el.addEventListener("input", ()=>{
+          if(el.value.trim()) el.classList.remove("ans-missing");
+          else el.classList.add("ans-missing");
+        });
+      });
+
+      // ✅ NGO search handlers
+      const input = document.getElementById("ngoSearch");
+      const box   = document.getElementById("ngoResults");
+      const label = document.getElementById("ngoLabel");
+      const badge = document.getElementById("ngoBadge");
+
+      function showBox(){ box.style.display = "block"; }
+      function hideBox(){ box.style.display = "none"; }
+
+      input.addEventListener("input", ()=>{
+        const q = input.value.trim();
+
+        // user is typing -> reset selection until they click
+        selectedNgoId = null;
+        selectedNgoName = q;
+
+        label.textContent = q || "-";
+        badge.className = "badge badge-red";
+        badge.textContent = "Not Matched";
+
+        clearTimeout(ngoSearchTimer);
+
+        if(q.length < 2){
+          box.innerHTML = "";
+          hideBox();
+          return;
+        }
+
+        ngoSearchTimer = setTimeout(async ()=>{
+          const list = await searchNgo(q);
+
+          box.innerHTML = ngoResultsHtml(list);
+          showBox();
+
+          box.querySelectorAll(".ngo-item[data-id]").forEach(item=>{
+            item.addEventListener("click", ()=>{
+              selectedNgoId = parseInt(item.dataset.id);
+              selectedNgoName = item.dataset.name;
+
+              input.value = selectedNgoName;
+              label.textContent = selectedNgoName;
+
+              badge.className = "badge badge-green";
+              badge.textContent = "Selected";
+
+              hideBox();
+            });
+          });
+
+        }, 250);
+      });
+
+      // close dropdown when clicking outside
+      document.addEventListener("click", (ev)=>{
+        if(!box.contains(ev.target) && ev.target !== input){
+          hideBox();
+        }
+      }, { once:false });
+    },
+
+    preConfirm: ()=>{
+      const rows = [];
+      let missing = false;
+
+      document.querySelectorAll(".ansBox").forEach(b=>{
+        const ans = b.value.trim();
+        if(!ans){ missing = true; b.classList.add("ans-missing"); }
+        rows.push({ question_id: parseInt(b.dataset.qid), answer: ans });
+      });
+
+      if(missing){
+        Swal.showValidationMessage("All answers are required");
+        return false;
+      }
+
+      // ✅ NGO validation:
+      // if backend already matched, use it; else user must select from search
+      const ngo_id_to_use = (data.ngo?.matched && data.ngo?.id) ? data.ngo.id : selectedNgoId;
+
+      if(!ngo_id_to_use){
+        Swal.showValidationMessage("NGO not matched. Please search & select NGO.");
+        return false;
+      }
+
+      return { token:data.token, ngo_id: ngo_id_to_use, rows };
+    }
+  });
+
+  if(!result.isConfirmed) return;
+
+  createTicket(result.value);
+}
+
+/* ===============================
+   CREATE TICKET
+================================ */
+  async function createTicket(payload)
+  {
+    Swal.fire({ title:"Creating Ticket...", allowOutsideClick:false, didOpen:()=>Swal.showLoading() });
+
+    try{
+      const res = await fetch("{% url 'tickets:create_ticket_from_preview' %}", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify(payload),
+        credentials:"same-origin"
+      });
+
+      const out = await res.json();
+      if(out.responseCode === 200){
+        Swal.fire("Success",`Ticket ID: ${out.ticket_id}`,"success")
+          .then(()=>window.location.href="{% url 'tickets:ticket_list' %}");
+      }else{
+        Swal.fire("Failed", out.responseMessage || "Error", "error");
+      }
+    }catch{
+      Swal.fire("Error","Network error","error");
+    }
+  }
+</script>
+
+{% endblock %}

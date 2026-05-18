@@ -1,0 +1,1503 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Ticket- Create{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/my_style.css' %}">
+
+<style>
+:root{
+  --sib-primary:#0d6efd;
+  --sib-bg:#f6f7fb;
+  --sib-card:#ffffff;
+  --sib-border:#e6e9f2;
+  --sib-text:#0f172a;
+  --sib-muted:#6b7280;
+  --sib-soft:#f1f5ff;
+}
+
+body{
+  background: var(--sib-bg) !important;
+  color: var(--sib-text);
+}
+.card{
+  border: 1px solid var(--sib-border) !important;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+.card-header{
+  background: linear-gradient(180deg, #ffffff, #f7f9ff) !important;
+  border-bottom: 1px solid var(--sib-border) !important;
+}
+.card-header h5{
+  font-weight: 700;
+  letter-spacing: .2px;
+  color: var(--sib-text);
+}
+.form-control,
+.form-select{
+  border-color: var(--sib-border) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+.form-control:focus,
+.form-select:focus{
+  border-color: rgba(13,110,253,.45) !important;
+  box-shadow: 0 0 0 .18rem rgba(13,110,253,.12) !important;
+}
+.form-label{
+  color: #111827;
+}
+.text-muted, .muted{
+  color: var(--sib-muted) !important;
+}
+.btn{
+  border-radius: 10px !important;
+}
+.btn-sm{
+  padding: .35rem .65rem !important;
+  font-weight: 600;
+}
+.btn-outline-primary{
+  border-color: rgba(13,110,253,.35) !important;
+}
+.btn-outline-primary:hover{
+  border-color: var(--sib-primary) !important;
+}
+.btn-outline-danger{
+  border-color: rgba(220,53,69,.35) !important;
+}
+#userForm .row.g-3 > [class*="col-"]{
+  padding-top: 2px;
+}
+#ngoResults{
+  border: 1px solid var(--sib-border);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.10);
+  overflow: hidden;
+  display:none;
+}
+#ngoResults .list-group-item{
+  border: 0 !important;
+  border-bottom: 1px solid #eef1f8 !important;
+  padding: .65rem .8rem;
+}
+#ngoResults .list-group-item:last-child{
+  border-bottom: 0 !important;
+}
+#ngoResults .list-group-item-action:hover{
+  background: var(--sib-soft);
+}
+.table{
+  border-color: var(--sib-border) !important;
+}
+.table thead th{
+  background: #f8fafc !important;
+  border-bottom: 1px solid var(--sib-border) !important;
+  font-weight: 700;
+  font-size: 13px;
+  color: #0b3d91;
+}
+.table td{
+  vertical-align: middle !important;
+  font-size: 13px;
+  color: #111827;
+}
+.ngo-cell{
+  background: #fbfcff;
+  min-width:420px;
+}
+.ngo-name{
+  color:#0f172a;
+  font-weight:700;
+}
+.ngo-meta{
+  color: var(--sib-muted);
+  font-size:12px;
+  margin-top:4px;
+}
+.alert-warning{
+  border: 1px solid rgba(245, 158, 11, .25) !important;
+  background: rgba(245, 158, 11, .12) !important;
+  color: #111827 !important;
+  border-radius: 12px !important;
+}
+.q-box{
+  max-height: 180px;
+  overflow: auto;
+  padding-right: 6px;
+}
+.toggleQuestions{
+  color: var(--sib-primary) !important;
+  text-decoration: none !important;
+}
+.toggleQuestions:hover{
+  opacity: .85;
+}
+#bearerTable thead tr:first-child th{
+  background: linear-gradient(180deg, #ffffff, #f7f9ff) !important;
+}
+.bearer-details{
+  background: #fbfcff;
+  border: 1px dashed rgba(13,110,253,.20);
+  padding: .55rem .65rem;
+  border-radius: 12px;
+  font-size:13px;
+  line-height:1.35;
+}
+.bearer-details b{
+  font-size:14px;
+}
+.bearer-details .muted{
+  color:#6c757d;
+}
+.q-box::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar,
+#ngoResults::-webkit-scrollbar{
+  height: 10px;
+  width: 10px;
+}
+.q-box::-webkit-scrollbar-thumb,
+.table-responsive::-webkit-scrollbar-thumb,
+#ngoResults::-webkit-scrollbar-thumb{
+  background: rgba(15,23,42,.18);
+  border-radius: 20px;
+}
+.q-box::-webkit-scrollbar-track,
+.table-responsive::-webkit-scrollbar-track,
+#ngoResults::-webkit-scrollbar-track{
+  background: rgba(15,23,42,.05);
+}
+hr{
+  border-top: 1px solid var(--sib-border) !important;
+  opacity: 1;
+}
+.table-responsive thead th{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+#bearerTable th.user-col,
+#bearerTable td.user-col {
+  width:220px;
+  max-width:220px;
+}
+#bearerTable td.user-col select.userSel {
+  width:100%;
+  max-width:220px;
+  white-space:normal;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+  line-height:1.15;
+}
+#bearerTable td.user-col select.userSel.form-select-sm {
+  padding-top:.25rem;
+  padding-bottom:.25rem;
+}
+.questionsContainer{display:none;}
+.card-header{background:#f5f6f8;}
+.d-none{display:none!important;}
+.table-responsive{overflow-x:auto;}
+.bearer-wrap{display:none;}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="d-flex align-items-center justify-content-center">
+  <div class="container">
+    <div class="card my-4 rounded-3">
+      <div class="card-header">
+        <h5 class="mb-0 text-center">Create SIB Query</h5>
+      </div>
+
+      <div class="card-body bg-body-tertiary border-topS">
+        <form id="userForm" action="{% url 'tickets:store_ticket' %}" method="POST" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold" for="ngoPdfUpload">Upload NGO Application PDF</label>
+              <input class="form-control form-select-sm" type="file" id="ngoPdfUpload" name="ngo_pdf" accept="application/pdf">
+              <small class="text-muted">Auto-detect NGO name from PDF, then auto-select NGO.</small>
+              <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="btnPdfPreview" style="display:none;">Preview PDF</button>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold" for="docsUpload">Upload Documents (mandatory, multiple)</label>
+              <input class="form-control form-select-sm" type="file" id="docsUpload" name="upload_documents" multiple>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold" for="ngoSearch">Search NGO</label>
+              <input type="text" class="form-control form-select-sm" id="ngoSearch" placeholder="Type NGO name..." autocomplete="off">
+              <div id="ngoResults" class="list-group mt-1" style="max-height:220px; overflow:auto;"></div>
+
+              <input type="hidden" id="ngoHidden" name="moduleData">
+              <input type="hidden" id="ngoHiddenId" name="ngoId">
+              <input type="hidden" id="ngoHiddenRcn" name="ngoHiddenRcn">
+              <input type="hidden" id="applicationIdHidden" name="application_id">
+              <input type="hidden" id="section_type" name="section_type" value="">
+            </div>
+          </div>
+
+          <div class="col-12 mt-4" id="usersSection" style="display:none;">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <div><b>NGO Query</b></div>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-outline-danger btn-sm" id="btnToggleNgoSection">
+                    Remove NGO Section
+                  </button>
+                  <button type="button" class="btn btn-outline-primary btn-sm" id="btnAddBearers">
+                    Add Office Bearer Detail
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div id="userSectionOnly" class="table-responsive">
+                  <table class="table table-bordered table-sm mb-0 align-middle" id="userSectionTable">
+                    <thead class="table-light">
+                      <tr>
+                        <th class="ngo-cell" style="color:#0d6efd!important;">NGO Details</th>
+                        <th style="min-width:320px; color:#0d6efd!important;">Address</th>
+                        <th style="min-width:180px; color:#0d6efd!important;">State</th>
+                        <th style="min-width:180px; color:#0d6efd!important;">SIBx</th>
+                        <th style="min-width:220px; color:#0d6efd!important;">Nodal Officer</th>
+                        <th style="min-width:180px; color:#0d6efd!important;">Enquiry Type</th>
+                        <th style="min-width:320px; color:#0d6efd!important;">Questions</th>
+                      </tr>
+                    </thead>
+
+                    <tbody id="userRows">
+                      <tr class="user-row">
+                        <td class="ngo-cell">
+                          <div class="ngo-name"><span id="uiNgoNameText">Select NGO...</span></div>
+                          <div class="ngo-meta">
+                            <span id="uiNgoRcnText">RCN: -</span>
+                            <span class="mx-2">|</span>
+                            <span id="uiNgoAppIdText">App ID: -</span>
+                          </div>
+                        </td>
+
+                        <td><div id="uiNgoAddressText" class="small text-muted">-</div></td>
+
+                        <td>
+                          <select class="form-select form-select-sm state-select" name="state[0]"></select>
+                        </td>
+
+                        <td>
+                          <select class="form-select form-select-sm group-select" name="group[0]">
+                            <option value="">-- Select Group --</option>
+                          </select>
+                        </td>
+
+                        <td>
+                          <select class="form-select form-select-sm user-select" name="users[0]">
+                            <option value="">-- Select User --</option>
+                          </select>
+                        </td>
+
+                        <td>
+                          <select class="form-select form-select-sm category-select" name="categories[0][]">
+                            <option value="">-- Select Category --</option>
+                            {% for Category in categories %}
+                              <option value="{{ Category.id }}">{{ Category.name }}</option>
+                            {% endfor %}
+                          </select>
+                        </td>
+
+                        <td>
+                          <div class="d-flex align-items-center mb-2">
+                            <button type="button" class="btn btn-link p-0 toggleQuestions d-none" title="Show Questions">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                          <div class="alert alert-warning py-2 mb-0 q-box questionsContainer"></div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="bearer-wrap" id="bearerWrap">
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-sm mb-0 align-middle" id="bearerTable">
+                      <thead class="table-light">
+                        <tr>
+                          <th colspan="9" class="text-start">
+                            <div><b style="color:#050f1d !important;">Office Bearer Query</b></div>
+                          </th>
+                        </tr>
+                        <tr>
+                          <th style="width:50px; color:#0d6efd!important;">S No.</th>
+                          <th style="min-width:420px; color:#0d6efd!important;">Office Bearer Details</th>
+                          <th style="min-width:320px; color:#0d6efd!important;">Address</th>
+                          <th style="min-width:180px; color:#0d6efd!important;">State</th>
+                          <th style="min-width:180px; color:#0d6efd!important;">SIBx</th>
+                          <th class="user-col" style="min-width:180px; color:#0d6efd!important;">Nodal Officer</th>
+                          <th style="min-width:180px; color:#0d6efd!important;">Enquiry Type</th>
+                          <th style="min-width:320px; color:#0d6efd!important;">Questions</th>
+                          <th style="width:80px; color:#0d6efd!important;">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="bearerTbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-3">
+            <div class="col-md-3" id="mhafileNoWrap" style="display:none;">
+              <label for="mhafileNo" class="form-label fw-semibold">MHA File No.</label>
+              <input class="form-control" id="mhafileNo" name="mhafile_no" placeholder="Enter MHA File No.">
+            </div>
+
+            <div class="col-md-3" id="fileNoWrap" style="display:none;">
+              <label for="fileNo" class="form-label fw-semibold">File No.</label>
+              <div class="d-flex align-items-center gap-2">
+                <input class="form-control" id="fileNo" name="file_no" placeholder="Enter File No.">
+                <span class="fw-semibold text-nowrap">({{ next_ticket_id }})</span>
+                <input type="hidden" name="next_ticket_id" value="{{next_ticket_id}}">
+              </div>
+            </div>
+
+            <div class="col-md-3" id="signaterWrap" style="display:none;">
+              <label for="signaters" class="form-label fw-semibold">Select Signatory</label>
+              <select name="signater_id" id="signaters" class="form-control">
+                <option value="">Select Signatory</option>
+                {% for signater in signaters %}
+                  <option value="{{ signater.id }}">{{ signater.ranks }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-12" id="descriptionWrap" style="display:none;">
+              <label for="description" class="form-label fw-semibold">Description</label>
+              <textarea class="form-control" id="description" name="description" placeholder="Enter ticket description..."></textarea>
+            </div>
+          </div>
+
+          <div class="col-12 text-center mt-4">
+            <a href="{% url 'tickets:ticket_list' %}" class="btn btn-secondary btn-sm me-2">Back</a>
+            <button type="submit" class="btn btn-primary btn-sm" id="loderButton">
+              <span id="loderIcon" class="spinner-border spinner-border-sm me-1" style="display:none" role="status" aria-hidden="true"></span>
+              Submit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">PDF Preview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0" style="height:80vh;">
+          <iframe id="pdfPreviewFrame" src="" style="width:100%; height:100%; border:0;"></iframe>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script src="{% static 'js/jquery.validate.js' %}"></script>
+<script src="{% static 'js/SweetAlert2.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const URL_PARSE_PDF   = "{% url 'tickets:parse_ngo_pdf' %}";
+  const URL_SEARCH_NGO  = "{% url 'tickets:search_ngo' %}";
+  const URL_UNITS       = "{% url 'tickets:get_units_by_state' %}";
+  const URL_USERS       = "{% url 'tickets:get_users_by_state_unit' %}";
+  const URL_QUESTIONS   = "{% url 'tickets:api_questions' %}";
+  const URL_BEARERS     = "{% url 'tickets:get_office_bearers' %}";
+
+  const STATES = {{ states|safe }};
+  const CATEGORIES = [
+    {% for Category in categories %}
+      {
+        id: "{{ Category.id }}",
+        name: "{{ Category.name|escapejs }}",
+        description: "{{ Category.description|default_if_none:''|escapejs }}"
+      },
+    {% endfor %}
+  ];
+
+  const form = document.getElementById('userForm');
+
+  const ngoPdfUpload = document.getElementById('ngoPdfUpload');
+  const docsUpload   = document.getElementById('docsUpload');
+  const ngoSearch    = document.getElementById('ngoSearch');
+  const ngoResults   = document.getElementById('ngoResults');
+
+  const ngoHidden      = document.getElementById('ngoHidden');
+  const ngoHiddenId    = document.getElementById('ngoHiddenId');
+  const ngoHiddenRcn   = document.getElementById('ngoHiddenRcn');
+  const applicationIdHidden = document.getElementById('applicationIdHidden');
+
+  const usersSection = document.getElementById('usersSection');
+  const userSectionOnly = document.getElementById('userSectionOnly');
+
+  const bearerWrap   = document.getElementById('bearerWrap');
+  const bearerTbody  = document.getElementById('bearerTbody');
+  const bearerTable  = document.getElementById('bearerTable');
+
+  const btnAddBearers = document.getElementById('btnAddBearers');
+  const btnToggleNgoSection = document.getElementById('btnToggleNgoSection');
+
+  const fileNoWrap       = document.getElementById('fileNoWrap');
+  const mhafileNoWrap    = document.getElementById('mhafileNoWrap');
+  const descriptionWrap  = document.getElementById('descriptionWrap');
+
+  const mhafileNoInput = document.getElementById('mhafileNo');
+  const fileNoInput = document.getElementById('fileNo');
+  const signaterSelect = document.getElementById('signaters');
+
+  const sectionTypeHidden = document.getElementById('section_type');
+
+  const uiNgoNameText    = document.getElementById('uiNgoNameText');
+  const uiNgoRcnText     = document.getElementById('uiNgoRcnText');
+  const uiNgoAppIdText   = document.getElementById('uiNgoAppIdText');
+  const uiNgoAddressText = document.getElementById('uiNgoAddressText');
+
+  const btnPdfPreview     = document.getElementById('btnPdfPreview');
+  const pdfPreviewFrame   = document.getElementById('pdfPreviewFrame');
+  const pdfPreviewModalEl = document.getElementById('pdfPreviewModal');
+
+  let pdfModal = null;
+  let ngoPdfObjectUrl = null;
+
+  if (pdfPreviewModalEl && window.bootstrap) {
+    pdfModal = new bootstrap.Modal(pdfPreviewModalEl);
+  }
+
+  let detectedCategoryId = "";
+  let detectedStateId = "";
+
+  const FIXED_BEARER_CATEGORY_ID = "6";
+  let isNgoSectionEnabled = true;
+
+  function getCookie(name){
+    let v = null;
+    const cookies = document.cookie ? document.cookie.split(';') : [];
+    for (const c of cookies) {
+      const t = c.trim();
+      if (t.startsWith(name + '=')) {
+        v = decodeURIComponent(t.substring(name.length + 1));
+        break;
+      }
+    }
+    return v;
+  }
+
+  function escapeHtml(str){
+    return String(str || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function normalize(s){
+    return String(s || '').trim().toLowerCase();
+  }
+
+  function findStateIdByName(stateName){
+    const n = normalize(stateName);
+    if (!n) return "";
+    const match = (STATES || []).find(x => normalize(x.name) === n);
+    return match ? String(match.id) : "";
+  }
+
+  function buildUserLabel(u){
+    const rank = (u.rank || '-').trim();
+    const name = (u.name || '-').trim();
+    const ucs  = (u.ucs_no || '-').trim();
+    return `${rank} | ${name}  |  ${ucs}`;
+  }
+
+  function getCategoryNameById(catId){
+    const c = (CATEGORIES || []).find(x => String(x.id) === String(catId));
+    return c ? c.name : `Category ${catId}`;
+  }
+
+  function canShowAssignmentSection(){
+    const hasPdf = ngoPdfUpload.files && ngoPdfUpload.files.length > 0;
+    const hasNgo = ngoHiddenId.value && String(ngoHiddenId.value).trim() !== '';
+    return hasPdf && hasNgo;
+  }
+
+  function setNgoSectionInputsRequired(isRequired){
+    document.querySelectorAll('#userSectionOnly .user-row').forEach(row => {
+      const stateSel = row.querySelector('.state-select');
+      const groupSel = row.querySelector('.group-select');
+      const userSel  = row.querySelector('.user-select');
+      const catSel   = row.querySelector('.category-select');
+
+      [stateSel, groupSel, userSel, catSel].forEach(el => {
+        if (!el) return;
+        if (isRequired) el.setAttribute('data-required', '1');
+        else el.removeAttribute('data-required');
+      });
+    });
+  }
+
+  function setBottomFieldsRequired(isRequired){
+    [mhafileNoInput, fileNoInput, signaterSelect].forEach(el => {
+      if (!el) return;
+      if (isRequired) el.setAttribute('data-required', '1');
+      else el.removeAttribute('data-required');
+    });
+  }
+
+  function toggleAssignmentSection(){
+    const show = canShowAssignmentSection();
+
+    usersSection.style.display    = show ? 'block' : 'none';
+    fileNoWrap.style.display      = show ? 'block' : 'none';
+    mhafileNoWrap.style.display   = show ? 'block' : 'none';
+    descriptionWrap.style.display = show ? 'block' : 'none';
+
+    const shouldShowSignater = show;
+    const signaterWrap = document.getElementById('signaterWrap');
+    if (signaterWrap) signaterWrap.style.display = shouldShowSignater ? 'block' : 'none';
+
+    if (show && isNgoSectionEnabled) setNgoSectionInputsRequired(true);
+    else setNgoSectionInputsRequired(false);
+
+    setBottomFieldsRequired(show);
+
+    if (!show) {
+      bearerWrap.style.display = 'none';
+      bearerTbody.innerHTML = '';
+    }
+  }
+
+  async function fetchNgoDetailsByName(ngoName){
+    const r = await fetch(`${URL_SEARCH_NGO}?q=${encodeURIComponent(ngoName)}`);
+    const list = await r.json();
+    if (!Array.isArray(list) || list.length === 0) return null;
+    const exact = list.find(x => normalize(x.association_name) === normalize(ngoName));
+    return exact || list[0];
+  }
+
+  function updateSectionTypeHidden(){
+    let userSectionHasUser = false;
+
+    if (isNgoSectionEnabled) {
+      document.querySelectorAll('#userRows .user-row').forEach((row) => {
+        const user = row.querySelector('.user-select')?.value || '';
+        if (user) userSectionHasUser = true;
+      });
+    }
+
+    let bearerHasUser = false;
+    Array.from(bearerTbody.querySelectorAll('tr')).forEach(tr => {
+      const user = tr.querySelector('.userSel')?.value || '';
+      if (user) bearerHasUser = true;
+    });
+
+    if (userSectionHasUser && bearerHasUser) sectionTypeHidden.value = 'both';
+    else if (userSectionHasUser) sectionTypeHidden.value = 'user_section';
+    else if (bearerHasUser) sectionTypeHidden.value = 'office_bearer';
+    else sectionTypeHidden.value = '';
+  }
+
+  function toggleNgoSectionUI(){
+    isNgoSectionEnabled = !isNgoSectionEnabled;
+
+    if (isNgoSectionEnabled) {
+      userSectionOnly.style.display = 'block';
+      btnToggleNgoSection.classList.remove('btn-outline-success');
+      btnToggleNgoSection.classList.add('btn-outline-danger');
+      btnToggleNgoSection.textContent = 'Remove NGO Section';
+      setNgoSectionInputsRequired(true);
+    } else {
+      userSectionOnly.style.display = 'none';
+      btnToggleNgoSection.classList.remove('btn-outline-danger');
+      btnToggleNgoSection.classList.add('btn-outline-success');
+      btnToggleNgoSection.textContent = 'Add NGO Section';
+      setNgoSectionInputsRequired(false);
+
+      document.querySelectorAll('#userRows .user-row').forEach(row => {
+        const stateSel = row.querySelector('.state-select');
+        const groupSel = row.querySelector('.group-select');
+        const userSel  = row.querySelector('.user-select');
+        const catSel   = row.querySelector('.category-select');
+        const qBox     = row.querySelector('.questionsContainer');
+
+        if (stateSel) stateSel.value = '';
+        if (groupSel) {
+          groupSel.innerHTML = '<option value="">-- Select Group --</option>';
+          groupSel.value = '';
+        }
+        if (userSel) {
+          userSel.innerHTML = '<option value="">-- Select User --</option>';
+          userSel.value = '';
+        }
+        if (catSel) catSel.value = '';
+        if (qBox) {
+          qBox.innerHTML = '';
+          qBox.style.display = 'none';
+        }
+      });
+    }
+
+    updateSectionTypeHidden();
+  }
+
+  if (btnToggleNgoSection) {
+    btnToggleNgoSection.addEventListener('click', toggleNgoSectionUI);
+  }
+
+  if (pdfPreviewModalEl) {
+    pdfPreviewModalEl.addEventListener('hidden.bs.modal', function(){
+      if (pdfPreviewFrame) pdfPreviewFrame.src = '';
+    });
+  }
+
+  if (btnPdfPreview) {
+    btnPdfPreview.addEventListener('click', function(){
+      if (!ngoPdfObjectUrl) {
+        Swal.fire({ title:'No PDF', text:'Please upload PDF first.', icon:'warning' });
+        return;
+      }
+      pdfPreviewFrame.src = ngoPdfObjectUrl;
+      if (pdfModal) pdfModal.show();
+      else window.open(ngoPdfObjectUrl, '_blank');
+    });
+  }
+
+  function buildStates(selectEl){
+    selectEl.innerHTML = '<option value="">-- Select State --</option>';
+    (STATES || []).forEach(s => {
+      const o = document.createElement('option');
+      o.value = s.id;
+      o.textContent = s.name;
+      selectEl.appendChild(o);
+    });
+  }
+
+  function selectFirstRealOption(selectEl){
+    if (!selectEl) return false;
+    for (let i = 0; i < selectEl.options.length; i++) {
+      const opt = selectEl.options[i];
+      if (opt && opt.value && opt.value.trim() !== "") {
+        selectEl.value = opt.value;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  async function loadGroups(row){
+    const stateSel = row.querySelector('.state-select');
+    const groupSel = row.querySelector('.group-select');
+    const userSel  = row.querySelector('.user-select');
+
+    groupSel.innerHTML = '<option value="">-- Select Group --</option>';
+    userSel.innerHTML  = '<option value="">-- Select User --</option>';
+
+    const stateId = stateSel.value;
+    if (!stateId) return;
+
+    const r = await fetch(`${URL_UNITS}?state_id=${encodeURIComponent(stateId)}`);
+    const d = await r.json();
+
+    (d.units || []).forEach(u => {
+      groupSel.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`);
+    });
+
+    if (row.dataset.autoInit === "1") {
+      if (selectFirstRealOption(groupSel)) {
+        await loadUsers(row);
+      }
+    }
+  }
+
+  async function loadUsers(row){
+    const stateSel = row.querySelector('.state-select');
+    const groupSel = row.querySelector('.group-select');
+    const userSel  = row.querySelector('.user-select');
+
+    userSel.innerHTML = '<option value="">-- Select User --</option>';
+
+    const stateId = stateSel.value;
+    const unit = groupSel.value;
+    if (!stateId || !unit) return;
+
+    const r = await fetch(`${URL_USERS}?state_id=${encodeURIComponent(stateId)}&unit=${encodeURIComponent(unit)}`);
+    const d = await r.json();
+
+    const users = d.users || [];
+    users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = buildUserLabel(u);
+      opt.title = buildUserLabel(u);
+      userSel.appendChild(opt);
+    });
+
+    if (row.dataset.autoInit === "1") {
+      selectFirstRealOption(userSel);
+      row.dataset.autoInit = "0";
+    }
+  }
+
+  async function loadQuestionsInto(container, idx, categoryId){
+    const row = container.closest('tr');
+    const eyeBtn = row ? row.querySelector('.toggleQuestions') : null;
+
+    if (!categoryId) {
+      container.style.display = 'none';
+      container.innerHTML = '';
+      if (eyeBtn) eyeBtn.classList.add('d-none');
+      return;
+    }
+
+    container.innerHTML = '<div class="col-12 text-muted">Loading questions...</div>';
+    container.style.display = 'none';
+    if (eyeBtn) eyeBtn.classList.add('d-none');
+
+    const r = await fetch(`${URL_QUESTIONS}?category_id=${encodeURIComponent(categoryId)}`);
+    const data = await r.json();
+    const qs = data.questions || [];
+
+    container.innerHTML = qs.length
+      ? qs.map((q, i) => `
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="checkbox" name="questions[${idx}][]" value="${q.id}" checked>
+          <label class="form-check-label">${i + 1}. ${escapeHtml(q.text)}</label>
+        </div>`).join('')
+      : '<div class="text-muted">No questions found.</div>';
+
+    if (eyeBtn) {
+      if (qs.length > 0) eyeBtn.classList.remove('d-none');
+      else eyeBtn.classList.add('d-none');
+    }
+  }
+
+  function initAssignmentRow(row){
+    const stateSel = row.querySelector('.state-select');
+    const groupSel = row.querySelector('.group-select');
+    const catSel   = row.querySelector('.category-select');
+    const qBox     = row.querySelector('.questionsContainer');
+
+    buildStates(stateSel);
+
+    stateSel.addEventListener('change', () => { loadGroups(row); });
+    groupSel.addEventListener('change', () => { loadUsers(row); });
+    row.querySelector('.user-select')?.addEventListener('change', updateSectionTypeHidden);
+
+    catSel.addEventListener('change', () => {
+      const idx = Array.from(document.querySelectorAll('#userRows .user-row')).indexOf(row);
+      loadQuestionsInto(qBox, idx, catSel.value);
+    });
+
+    row.querySelector('.toggleQuestions').addEventListener('click', (e) => {
+      const isHidden = (qBox.style.display === 'none' || !qBox.style.display);
+      qBox.style.display = isHidden ? 'block' : 'none';
+
+      const icon = e.currentTarget.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('fa-eye', !isHidden);
+        icon.classList.toggle('fa-eye-slash', isHidden);
+      }
+    });
+
+    qBox.addEventListener('change', updateSectionTypeHidden);
+  }
+
+  const firstRow = document.querySelector('#userRows .user-row');
+  if (firstRow) initAssignmentRow(firstRow);
+
+  ngoPdfUpload.addEventListener('change', async function(){
+    if (!this.files || !this.files.length) return;
+
+    if (ngoPdfObjectUrl) URL.revokeObjectURL(ngoPdfObjectUrl);
+    ngoPdfObjectUrl = URL.createObjectURL(this.files[0]);
+    btnPdfPreview.style.display = 'inline-block';
+
+    const fd = new FormData();
+    fd.append('ngo_pdf', this.files[0]);
+
+    try {
+      const r = await fetch(URL_PARSE_PDF, {
+        method:'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body: fd
+      });
+      const res = await r.json();
+
+      if (!res.ok) {
+        Swal.fire({ title:'PDF Error', text: res.message || 'Failed to parse PDF', icon:'error' });
+        return;
+      }
+
+      detectedCategoryId = (res.category_id ? String(res.category_id) : "");
+      detectedStateId = "";
+
+      if (res.state_id) {
+        detectedStateId = String(res.state_id);
+      } else if (res.ngo && res.ngo.association_state) {
+        if (!isNaN(res.ngo.association_state)) {
+          detectedStateId = String(res.ngo.association_state);
+        } else {
+          detectedStateId = findStateIdByName(res.ngo.association_state);
+        }
+      }
+
+      const pdfName = (res.name_in_pdf || '').trim();
+      ngoSearch.value = pdfName;
+
+      const ngoObj = await fetchNgoDetailsByName(pdfName);
+      if (!ngoObj) {
+        Swal.fire({ title:'No NGO match found', text:'Please search NGO manually.', icon:'warning' });
+        return;
+      }
+
+      ngoHidden.value = ngoObj.association_name || pdfName;
+      ngoHiddenId.value = ngoObj.id || '';
+      ngoHiddenRcn.value = ngoObj.rcn || ngoObj.fcra_registration_no || '';
+      applicationIdHidden.value = ngoObj.application_id || ngoObj.registration_application_id || '';
+
+      if (uiNgoNameText) uiNgoNameText.textContent = ngoHidden.value || 'Select NGO...';
+      if (uiNgoRcnText) uiNgoRcnText.textContent = `RCN: ${ngoHiddenRcn.value || '-'}`;
+      if (uiNgoAppIdText) uiNgoAppIdText.textContent = `App ID: ${applicationIdHidden.value || '-'}`;
+      if (uiNgoAddressText) uiNgoAddressText.textContent = ngoObj.association_address || '-';
+
+      if (res.file_no && mhafileNoInput) {
+        mhafileNoInput.value = res.file_no;
+      }
+
+      toggleAssignmentSection();
+
+      if (detectedStateId && firstRow) {
+        firstRow.dataset.autoInit = "1";
+        firstRow.querySelector('.state-select').value = detectedStateId;
+        firstRow.querySelector('.state-select').dispatchEvent(new Event('change'));
+      }
+
+      if (detectedCategoryId && firstRow) {
+        firstRow.querySelector('.category-select').value = detectedCategoryId;
+        firstRow.querySelector('.category-select').dispatchEvent(new Event('change'));
+      }
+
+      Swal.fire({
+        title:'NGO Selected',
+        text:`Selected: ${ngoHidden.value}`,
+        icon:'success',
+        timer: 1200,
+        showConfirmButton:false
+      });
+
+    } catch (e) {
+      Swal.fire({ title:'Error', text:'Failed to parse PDF / fetch NGO.', icon:'error' });
+    } finally {
+      toggleAssignmentSection();
+      updateSectionTypeHidden();
+    }
+  });
+
+  docsUpload.addEventListener('change', () => {
+    toggleAssignmentSection();
+    updateSectionTypeHidden();
+  });
+
+  let ngoTimer = null;
+  ngoSearch.addEventListener('input', function(){
+    const q = (this.value || '').trim();
+
+    ngoHidden.value = '';
+    ngoHiddenId.value = '';
+    ngoHiddenRcn.value = '';
+    applicationIdHidden.value = '';
+
+    if (uiNgoNameText) uiNgoNameText.textContent = 'Select NGO...';
+    if (uiNgoRcnText) uiNgoRcnText.textContent = 'RCN: -';
+    if (uiNgoAppIdText) uiNgoAppIdText.textContent = 'App ID: -';
+    if (uiNgoAddressText) uiNgoAddressText.textContent = '-';
+
+    bearerWrap.style.display = 'none';
+    bearerTbody.innerHTML = '';
+
+    toggleAssignmentSection();
+    updateSectionTypeHidden();
+
+    ngoResults.innerHTML = '';
+    ngoResults.style.display = 'none';
+
+    if (q.length < 2) return;
+
+    clearTimeout(ngoTimer);
+    ngoTimer = setTimeout(() => {
+      fetch(`${URL_SEARCH_NGO}?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(list => {
+          ngoResults.innerHTML = '';
+
+          if (!Array.isArray(list) || list.length === 0) {
+            ngoResults.innerHTML = `<div class="list-group-item text-muted">No results</div>`;
+            ngoResults.style.display = 'block';
+            return;
+          }
+
+          list.forEach(item => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'list-group-item list-group-item-action';
+
+            const rcn = item.rcn || item.fcra_registration_no || '-';
+            const app = item.application_id || item.registration_application_id || '';
+
+            btn.innerHTML = `
+              <div class="d-flex justify-content-between">
+                <span>${escapeHtml(item.association_name || '-')}</span>
+                <small class="text-muted">RCN: ${escapeHtml(rcn)}</small>
+              </div>
+              <div class="small text-muted">App ID: ${escapeHtml(app || '-')}</div>
+            `;
+
+            btn.addEventListener('click', () => {
+              ngoSearch.value = item.association_name || '';
+              ngoHidden.value = item.association_name || '';
+              ngoHiddenId.value = item.id || '';
+              ngoHiddenRcn.value = rcn;
+              applicationIdHidden.value = app;
+
+              if (uiNgoNameText) uiNgoNameText.textContent = ngoHidden.value || 'Select NGO...';
+              if (uiNgoRcnText) uiNgoRcnText.textContent = `RCN: ${ngoHiddenRcn.value || '-'}`;
+              if (uiNgoAppIdText) uiNgoAppIdText.textContent = `App ID: ${applicationIdHidden.value || '-'}`;
+              if (uiNgoAddressText) uiNgoAddressText.textContent = item.association_address || '-';
+
+              ngoResults.innerHTML = '';
+              ngoResults.style.display = 'none';
+
+              toggleAssignmentSection();
+              updateSectionTypeHidden();
+            });
+
+            ngoResults.appendChild(btn);
+          });
+
+          ngoResults.style.display = 'block';
+        })
+        .catch(() => {
+          ngoResults.innerHTML = `<div class="list-group-item text-danger">Error searching NGO</div>`;
+          ngoResults.style.display = 'block';
+        });
+    }, 250);
+  });
+
+  document.addEventListener('click', function(e){
+    if (!ngoResults.contains(e.target) && e.target !== ngoSearch) {
+      ngoResults.style.display = 'none';
+    }
+  });
+
+  function buildStateOptions(){
+    return `<option value="">-- Select State --</option>` + (STATES || []).map(s =>
+      `<option value="${s.id}">${escapeHtml(s.name)}</option>`
+    ).join('');
+  }
+
+  async function loadFixedBearerQuestions(tr){
+    const qBox = tr.querySelector('.questionsBoxRow');
+    const catId = FIXED_BEARER_CATEGORY_ID;
+
+    qBox.innerHTML = `<div class="text-muted">Loading questions...</div>`;
+
+    try {
+      const r = await fetch(`${URL_QUESTIONS}?category_id=${encodeURIComponent(catId)}`);
+      const data = await r.json();
+      const qs = data.questions || [];
+
+      qBox.innerHTML = qs.length
+        ? qs.map((q, i) => `
+            <div class="form-check mb-1">
+              <input class="form-check-input" type="checkbox" checked disabled>
+              <label class="form-check-label">${i + 1}. ${escapeHtml(q.text)}</label>
+            </div>
+          `).join('')
+        : `<div class="text-muted">No questions found.</div>`;
+
+      tr.querySelectorAll('input.qHidden').forEach(x => x.remove());
+      qs.forEach(q => {
+        const h = document.createElement('input');
+        h.type = 'hidden';
+        h.className = 'qHidden';
+        h.name = `bearer_questions[${tr.dataset.rowIndex}][]`;
+        h.value = q.id;
+        tr.appendChild(h);
+      });
+
+      updateSectionTypeHidden();
+    } catch (e) {
+      qBox.innerHTML = `<div class="text-danger">Error loading questions.</div>`;
+    }
+  }
+
+  function addBearerRow(member, index){
+    const m = member || {};
+    const tr = document.createElement('tr');
+
+    tr.dataset.rowIndex = index;
+    tr.dataset.memberId = String(m.id || '').trim();
+    tr.dataset.memberName = String(m.member_name || '').trim();
+    tr.dataset.memberKey = String(index);
+
+    const detailsHtml = `
+      <div class="bearer-details">
+        <b>${escapeHtml(m.member_name || '-')}</b>
+        <div class="muted">${escapeHtml(m.father_husband_name || '-')} | ${escapeHtml(m.post_in_association || '-')}</div>
+        <div>Nationality: ${escapeHtml(m.nationality || '-')} | Relation: ${escapeHtml(m.relationship_with_other_member || '-')}</div>
+        <div>Occupation: ${escapeHtml(m.occupation || '-')}</div>
+        <div class="muted">Mobile: ${escapeHtml(m.mobile || '-')} | PAN: ${escapeHtml(m.pan_no || '-')}</div>
+      </div>
+    `;
+
+    const catName = getCategoryNameById(FIXED_BEARER_CATEGORY_ID);
+
+    tr.innerHTML = `
+      <td>${index}</td>
+      <td>${detailsHtml}</td>
+      <td>${escapeHtml(m.address || '-')}</td>
+      <td>
+        <select class="form-select form-select-sm stateSel">
+          ${buildStateOptions()}
+        </select>
+      </td>
+      <td>
+        <select class="form-select form-select-sm unitSel" disabled>
+          <option value="">-- Select Group --</option>
+        </select>
+      </td>
+      <td class="user-col">
+        <select class="form-select form-select-sm userSel" disabled>
+          <option value="">-- Select User --</option>
+        </select>
+      </td>
+      <td>
+        <select class="form-select form-select-sm bearerCatSel" disabled>
+          <option value="${escapeHtml(FIXED_BEARER_CATEGORY_ID)}" selected>
+            ${escapeHtml(catName)}
+          </option>
+        </select>
+      </td>
+      <td style="min-width:320px;">
+        <div class="alert alert-warning py-2 mb-0 q-box questionsBoxRow"></div>
+      </td>
+      <td class="text-center">
+        <button type="button" class="btn btn-outline-danger btn-sm removeRow">X</button>
+      </td>
+    `;
+
+    bearerTbody.appendChild(tr);
+
+    tr.querySelector('.removeRow').addEventListener('click', () => {
+      tr.remove();
+      updateSectionTypeHidden();
+    });
+
+    loadFixedBearerQuestions(tr);
+    updateSectionTypeHidden();
+  }
+
+  btnAddBearers.addEventListener('click', function(){
+    const appId = (applicationIdHidden.value || '').trim();
+    const rcn   = (ngoHiddenRcn.value || '').trim();
+
+    if (!appId && !rcn) {
+      Swal.fire({ title:'Missing data', text:'application_id or RCN not found.', icon:'warning' });
+      return;
+    }
+
+    bearerTbody.innerHTML = '';
+    bearerWrap.style.display = 'block';
+
+    const qs = new URLSearchParams();
+    if (appId) qs.append('application_id', appId);
+    if (rcn) qs.append('ngoHiddenRcn', rcn);
+
+    fetch(`${URL_BEARERS}?${qs.toString()}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data || !data.ok) {
+          Swal.fire({ title:'Bearer Error', text:data?.message || 'Failed to fetch office bearers', icon:'error' });
+          return;
+        }
+
+        const members = data.members || [];
+        if (!members.length) {
+          Swal.fire({ title:'No members', text:'No office bearers found.', icon:'warning' });
+          return;
+        }
+
+        members.forEach((m, i) => addBearerRow(m, i + 1));
+        updateSectionTypeHidden();
+      })
+      .catch(() => {
+        Swal.fire({ title:'Bearer Error', text:'Bearer API failed.', icon:'error' });
+      });
+  });
+
+  bearerTable.addEventListener('change', function(e){
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+
+    const stateSel = tr.querySelector('.stateSel');
+    const unitSel  = tr.querySelector('.unitSel');
+    const userSel  = tr.querySelector('.userSel');
+
+    if (e.target.classList.contains('stateSel')) {
+      unitSel.innerHTML = `<option value="">-- Select Group --</option>`;
+      userSel.innerHTML = `<option value="">-- Select User --</option>`;
+      userSel.disabled = true;
+
+      const stateId = stateSel.value;
+      if (!stateId) {
+        unitSel.disabled = true;
+        updateSectionTypeHidden();
+        return;
+      }
+
+      fetch(`${URL_UNITS}?state_id=${encodeURIComponent(stateId)}`)
+        .then(r => r.json())
+        .then(d => {
+          (d.units || []).forEach(u => {
+            unitSel.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`);
+          });
+          unitSel.disabled = false;
+          updateSectionTypeHidden();
+        });
+    }
+
+    if (e.target.classList.contains('unitSel')) {
+      userSel.innerHTML = `<option value="">-- Select User --</option>`;
+      const stateId = stateSel.value;
+      const unit = unitSel.value;
+
+      if (!stateId || !unit) {
+        userSel.disabled = true;
+        updateSectionTypeHidden();
+        return;
+      }
+
+      fetch(`${URL_USERS}?state_id=${encodeURIComponent(stateId)}&unit=${encodeURIComponent(unit)}`)
+        .then(r => r.json())
+        .then(d => {
+          (d.users || []).forEach(u => {
+            const opt = document.createElement('option');
+            opt.value = u.id;
+            opt.textContent = buildUserLabel(u);
+            opt.title = buildUserLabel(u);
+            userSel.appendChild(opt);
+          });
+          userSel.disabled = false;
+          updateSectionTypeHidden();
+        });
+    }
+
+    if (e.target.classList.contains('userSel')) {
+      updateSectionTypeHidden();
+    }
+  });
+
+  $(document).on('submit', '#userForm', function(e){
+    e.preventDefault();
+
+    toggleAssignmentSection();
+
+    if (!ngoPdfUpload.files.length) {
+      Swal.fire({
+        title:'PDF required',
+        text:'Please upload NGO application PDF.',
+        icon:'warning'
+      });
+      return;
+    }
+
+    if (!docsUpload.files.length) {
+      Swal.fire({
+        title:'Documents required',
+        text:'Please upload document(s). If zip was invalid, please re-upload valid document files or a valid zip.',
+        icon:'warning'
+      });
+      return;
+    }
+
+    if (!ngoHiddenId.value) {
+      Swal.fire({
+        title:'NGO required',
+        text:'Please search and select an NGO.',
+        icon:'warning'
+      });
+      return;
+    }
+
+    if (canShowAssignmentSection()) {
+      if (!mhafileNoInput.value.trim()) {
+        Swal.fire({
+          title:'MHA File No. required',
+          text:'Please enter MHA File No.',
+          icon:'warning'
+        });
+        return;
+      }
+
+      if (!fileNoInput.value.trim()) {
+        Swal.fire({
+          title:'File No. required',
+          text:'Please enter File No.',
+          icon:'warning'
+        });
+        return;
+      }
+
+      if (!signaterSelect.value.trim()) {
+        Swal.fire({
+          title:'Signater required',
+          text:'Please select signater.',
+          icon:'warning'
+        });
+        return;
+      }
+    }
+
+    let userData = [];
+
+    if (isNgoSectionEnabled) {
+      document.querySelectorAll('#userRows .user-row').forEach((row, idx) => {
+        const state = row.querySelector('.state-select')?.value || '';
+        const group = row.querySelector('.group-select')?.value || '';
+        const user  = row.querySelector('.user-select')?.value || '';
+        const catId = row.querySelector('.category-select')?.value || '';
+
+        const qIds = Array.from(row.querySelectorAll(`input[name="questions[${idx}][]"]:checked`))
+          .map(x => parseInt(x.value))
+          .filter(n => !isNaN(n));
+
+        if (user) {
+          userData.push({
+            user_id: parseInt(user),
+            state: state,
+            group: group,
+            category_id: catId ? parseInt(catId) : null,
+            questions: qIds,
+            section: 'user_section'
+          });
+        }
+      });
+    }
+
+    Array.from(bearerTbody.querySelectorAll('tr')).forEach((tr) => {
+      const state = tr.querySelector('.stateSel')?.value || '';
+      const group = tr.querySelector('.unitSel')?.value || '';
+      const user  = tr.querySelector('.userSel')?.value || '';
+
+      const qIds = Array.from(tr.querySelectorAll('input.qHidden'))
+        .map(x => parseInt(x.value))
+        .filter(n => !isNaN(n));
+
+      if (user) {
+        userData.push({
+          user_id: parseInt(user),
+          state: state,
+          group: group,
+          category_id: parseInt(FIXED_BEARER_CATEGORY_ID),
+          questions: qIds,
+          section: 'office_bearer',
+          member_id: (tr.dataset.memberId || '').trim(),
+          member_name: (tr.dataset.memberName || '').trim(),
+          member_key: (tr.dataset.memberKey || '').trim(),
+        });
+      }
+    });
+
+    if (userData.length === 0) {
+      Swal.fire({
+        title:'Users required',
+        text:'Please select at least one user in NGO section or Office Bearer section.',
+        icon:'warning'
+      });
+      return;
+    }
+
+    userData = Object.values(userData.reduce((acc, u) => {
+      const isBearer = (u.section === 'office_bearer');
+      const key = isBearer
+        ? `${u.user_id}-${u.section}-${u.member_key || u.member_name || ''}`
+        : `${u.user_id}-${u.section}`;
+
+      if (!acc[key]) {
+        acc[key] = { ...u };
+      } else {
+        acc[key].questions = [...new Set([...(acc[key].questions || []), ...(u.questions || [])])];
+        acc[key].state ||= u.state;
+        acc[key].group ||= u.group;
+        acc[key].category_id ||= u.category_id;
+        acc[key].member_name ||= u.member_name;
+        acc[key].member_key ||= u.member_key;
+      }
+      return acc;
+    }, {}));
+
+    updateSectionTypeHidden();
+    if (!sectionTypeHidden.value) {
+      const hasUser = userData.some(x => x.section === 'user_section');
+      const hasBear = userData.some(x => x.section === 'office_bearer');
+      sectionTypeHidden.value = hasUser && hasBear ? 'both' : (hasUser ? 'user_section' : 'office_bearer');
+    }
+
+    const csrftoken = getCookie('csrftoken');
+    const redirectUrl = "{% url 'tickets:ticket_list' %}";
+    const fd = new FormData(form);
+
+    fd.set('module', 'NGO');
+    fd.set('moduleData', ngoHidden.value || '');
+    fd.set('ngoId', ngoHiddenId.value || '');
+    fd.set('ngoHiddenRcn', ngoHiddenRcn.value || '');
+
+    if (applicationIdHidden.value) {
+      fd.set('application_id', applicationIdHidden.value);
+    }
+
+    fd.set('section_type', sectionTypeHidden.value);
+    fd.set('users', JSON.stringify(userData));
+    fd.set('signater_id', signaterSelect.value || '');
+
+    Swal.fire({
+      title:'Are you sure?',
+      text:'Do you want to submit this form?',
+      icon:'question',
+      showCancelButton:true,
+      confirmButtonColor:'#3085d6',
+      cancelButtonColor:'#d33',
+      confirmButtonText:'Yes, submit it!',
+      cancelButtonText:'Cancel'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+
+      $('#loderIcon').show();
+      $('#loderButton').prop('disabled', true);
+
+      $.ajax({
+        url: $(form).attr('action'),
+        type: 'POST',
+        headers: { 'X-CSRFToken': csrftoken },
+        data: fd,
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function (response) {
+          $('#loderIcon').hide();
+          $('#loderButton').prop('disabled', false);
+
+          if (response.responseCode == 200 || response.responseCode == '200') {
+            const previewId = String(response.next_ticket_id || '').trim();
+            const actualId = String(response.ticket_id || '').trim();
+            const officeFileInput = String(response.office_file_input || '').trim();
+            const finalOfficeFileNo = String(response.office_file_no || '').trim();
+
+            const uploadedDocs = Array.isArray(response.uploaded_docs_files) ? response.uploaded_docs_files : [];
+            const applicationFiles = Array.isArray(response.ngo_application_files) ? response.ngo_application_files : [];
+
+            const applicationFileCount = applicationFiles.length;
+            const uploadedDocsCount = uploadedDocs.length;
+
+            let htmlMsg = `<div>${response.responseMessage || 'Form submitted successfully.'}</div>`;
+
+            if (officeFileInput && actualId) {
+              if (previewId && previewId !== actualId) {
+                htmlMsg += `
+                  <div style="margin-top:12px; text-align:left;">
+                    <div><strong>File number changed:</strong></div>
+                    <div>${escapeHtml(officeFileInput)}(${escapeHtml(previewId)}) → ${escapeHtml(officeFileInput)}(${escapeHtml(actualId)})</div>
+                    <div style="margin-top:6px;"><strong>File number:</strong> ${escapeHtml(finalOfficeFileNo)}</div>
+                  </div>
+                `;
+              } else {
+                htmlMsg += `
+                  <div style="margin-top:12px; text-align:left;">
+                    <strong>File number:</strong> ${escapeHtml(finalOfficeFileNo)}
+                  </div>
+                `;
+              }
+            }
+
+            if (applicationFileCount) {
+              htmlMsg += `
+                <div style="margin-top:14px; text-align:left;">
+                  <strong>Application Upload:</strong> ${applicationFileCount} file uploaded
+                </div>
+              `;
+            }
+
+            if (uploadedDocsCount) {
+              htmlMsg += `
+                <div style="margin-top:14px; text-align:left;">
+                  <strong>Documents Upload:</strong> ${uploadedDocsCount} file(s) uploaded
+                </div>
+              `;
+            }
+
+            Swal.fire({
+              title: 'Success!',
+              html: htmlMsg,
+              icon: 'success',
+              confirmButtonColor: '#3085d6'
+            }).then(() => {
+              window.location.href = redirectUrl;
+            });
+          } else {
+            Swal.fire({
+              title:'Error',
+              text: response.responseMessage || 'Something went wrong.',
+              icon:'error'
+            });
+          }
+        },
+        error: function (xhr) {
+          $('#loderIcon').hide();
+          $('#loderButton').prop('disabled', false);
+
+          let errMsg = 'Something went wrong while submitting.';
+          if (xhr.responseJSON && xhr.responseJSON.responseMessage) {
+            errMsg = xhr.responseJSON.responseMessage;
+          }
+
+          Swal.fire({
+            title:'Error',
+            text: errMsg,
+            icon:'error'
+          });
+
+          console.error(xhr.responseText);
+        }
+      });
+    });
+  });
+
+  toggleAssignmentSection();
+  updateSectionTypeHidden();
+});
+</script>
+{% endblock %}

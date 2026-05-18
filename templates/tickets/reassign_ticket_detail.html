@@ -1,0 +1,182 @@
+
+
+
+
+{% extends TICKETS_BASE_TEMPLATE %}
+{% load static %}
+{% block style_head %}
+  {# Core styles you already had #}
+  
+{% endblock %}
+{% block content %}
+<!-- <link rel="stylesheet" href="{% static 'ticket/css/bootstrap.min.css' %}"> -->
+  <link rel="stylesheet" href="{% static 'ticket/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/my_style.css' %}">
+  <!-- <link rel="stylesheet" href="{% static 'ticket/css/style.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+
+{# templates/tickets/reassignment_history.html #}
+{% comment %}
+Latest UI kept intact; only dynamic bindings added.
+Assumes context: ticket, reassign (optional), reassignments (optional)
+{% endcomment %}
+
+{# Safely choose the active reassignment: prefer `reassign`, else first of list; no indexing. #}
+{% with active_reassign=reassign|default:reassignments|first %}
+<section class="d-flex align-items-center justify-content-center">
+  <div class="container">
+    <div class="card main-card my_card mb-5 mt-5 rounded-3">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h3 class="my_ngo mb-1 mt-1">
+              Ticket #{{ ticket.id }}
+              {% if ticket.title %}<small class="text-muted">— {{ ticket.title }}</small>{% endif %}
+            </h3>
+          </div>
+          <div class="col-md-4">
+            <p class="status_disp" style="float: inline-end;" type="button">
+              <span class="d-none d-sm-inline-block">
+                {{ ticket.status|default:"Draft" }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {# Show the details table if we have an active item OR at least show the ticket basics #}
+      {% if active_reassign or reassignments %}
+      <div class="card-body bg-body-tertiary border-top">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="row">
+              <div class="col-md-12 my_tabl">
+                <table class="table table-info table-striped-columns">
+                  <tbody style="border: 1px solid #ccc;">
+                    <tr>
+                      <th>Original Ticket</th>
+                      <td>#{{ ticket.id }}{% if ticket.title %} - {{ ticket.title }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                      <th>Reassigned By</th>
+                      <td style="width: 80%;">
+                        {% if active_reassign %}
+                          {{ active_reassign.reassigned_by.first_name|default:active_reassign.reassigned_by }}
+                        {% else %}-{% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>New Assigned Users</th>
+                      <td>
+                        {% if active_reassign %}
+                          {% with users=active_reassign.new_assigned_users.all %}
+                            {% if users %}
+                              {% for u in users %}
+                                {{ u.first_name|default:u }}{% if not forloop.last %}, {% endif %}
+                              {% endfor %}
+                            {% else %}-{% endif %}
+                          {% endwith %}
+                        {% else %}-{% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>Reason</th>
+                      <td>{% if active_reassign and active_reassign.reason %}{{ active_reassign.reason }}{% else %}-{% endif %}</td>
+                    </tr>
+                    <tr>
+                      <th>Date</th>
+                      <td>
+                        {% if active_reassign %}
+                          {{ active_reassign.created_at|date:"d-m-Y H:i" }}
+                        {% else %}
+                          {{ ticket.created_at|date:"d-m-Y H:i" }}
+                        {% endif %}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                {# Uncomment if needed
+                {% if active_reassign and active_reassign.is_draft %}
+                  <div class="alert alert-warning" role="alert">Questions &amp; Answers are in draft.</div>
+                {% endif %}
+                #}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <div class="row align-items-center">
+          <div class="col-md-12 grid-item status_history">
+            <div class="card-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <h5 class="my_ngo mb-1 mt-1">Status History</h5>
+                </div>
+              </div>
+            </div>
+
+            <ul class="timeline">
+              {% if reassignments %}
+                {% for r in reassignments %}
+                  <li class="event position-relative">
+                    <div class="left-arrow"></div>
+                    <div class="time" style="top: 18px;">
+                      by {{ r.reassigned_by.first_name|default:r.reassigned_by }} at
+                    </div>
+                    <div class="time">
+                      {{ r.created_at|date:"d M Y" }}<br> {{ r.created_at|date:"H:i" }}
+                      <svg width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
+                        <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9z"/>
+                        <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1z"/>
+                      </svg>
+                    </div>
+
+                    <h3>
+                      <span>
+                        <strong class="badge status_reopen" style="font-size: 15px;">Reassigned</strong>
+                        →
+                        <strong class="badge status_reopen" style="font-size: 15px;">Reassigned</strong>
+                      </span>
+                    </h3>
+
+                    {# Make row clickable to detail #}
+                    <a class="stretched-link" href="{% url 'tickets:reassign_single_detail' ticket.id r.id %}"></a>
+                  </li>
+                {% endfor %}
+              {% else %}
+                <li class="event">
+                  <div class="left-arrow"></div>
+                  <h3><span><strong class="badge status_open" style="font-size: 15px;">No reassignment found</strong></span></h3>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% else %}
+        <p class="empty-text text-muted text-center mt-3">🚫 No reassignment found for this ticket.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endwith %}
+
+
+
+
+{% endblock %}
+
+{% block extra_js %}
+
+<!-- <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/jquery.validate.js' %}"></script>
+<script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script src="{% static 'js/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'js/SweetAlert2.js' %}"></script> -->
+{% endblock %}

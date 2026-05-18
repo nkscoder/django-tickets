@@ -1,0 +1,1650 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% load static ticket_notifications_tags %}
+{% block title %}Ticket- List{% endblock %}
+
+{% block style_head %}
+<link rel="stylesheet" href="{% static 'ticket/css/all.min.css' %}">
+<link rel="stylesheet" href="{% static 'ticket/css/style.css' %}">
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+
+<style>
+  .dashboard-action-bar{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    margin-bottom:16px;
+  }
+
+  .clear-dashboard-btn{
+    min-width:140px;
+    font-weight:600;
+    border-radius:10px;
+  }
+
+  .dash-carousel{
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 6px;
+  }
+
+  .dash-viewport{
+    width: 100%;
+    overflow: visible;
+  }
+
+  .dash-track{
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 14px;
+    width: 100%;
+  }
+
+  .dash-card{
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+    overflow: hidden;
+    min-height: 220px;
+    transition: all .25s ease;
+    min-width: 0;
+  }
+
+  .dash-card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.12);
+  }
+
+  .dash-card.card-blue{ border-top: 4px solid #3b82f6; }
+  .dash-card.card-amber{ border-top: 4px solid #f59e0b; }
+  .dash-card.card-green{ border-top: 4px solid #22c55e; }
+  .dash-card.card-red{ border-top: 4px solid #f43f5e; }
+  .dash-card.card-gray{ border-top: 4px solid #6b7280; }
+
+  .dash-card .dash-title{
+    font-weight: 800;
+    font-size: 15px;
+    padding: 14px 12px;
+    border-bottom: 1px solid #eef0f2;
+    color: #111827;
+    text-align: center;
+    background: #fff;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .dash-tiles{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding: 18px 16px 22px;
+    place-items: center;
+    min-height: 150px;
+  }
+
+  .dash-tiles.single{
+    grid-template-columns: 1fr;
+  }
+
+  .dash-tile{
+    width: 100%;
+    max-width: 140px;
+    text-decoration: none !important;
+    color: #111 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    border-radius: 14px;
+    padding: 8px 8px 14px;
+    transition: all .15s ease;
+  }
+
+  .dash-tile:hover{
+    background: #f7faff;
+    transform: translateY(-1px);
+  }
+
+  .tile-label{
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.2;
+    min-height: 38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .tile-icon{
+    width: 58px;
+    height: 58px;
+    border-radius: 14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 14px 26px rgba(0,0,0,.12);
+    color: #fff;
+    font-size: 24px;
+    position: relative;
+  }
+
+  .tile-count{
+    position:absolute;
+    top: -10px;
+    right: -10px;
+    min-width: 34px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: #0d6efd;
+    color: #fff;
+    font-weight: 900;
+    font-size: 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 10px 18px rgba(0,0,0,.16);
+  }
+
+  .dash-tile.is-disabled{
+    pointer-events:none;
+    opacity:.45;
+  }
+
+  .tile-blue .tile-icon{ background:#3b82f6; }
+  .tile-amber .tile-icon{ background:#f7b24a; }
+  .tile-green .tile-icon{ background:#22c55e; }
+  .tile-red .tile-icon{ background:#ff4d6d; }
+  .tile-gray .tile-icon{ background:#6b7280; }
+
+  .dash-arrow,
+  .dash-dots{
+    display:none !important;
+  }
+
+  #ticketTable thead tr { background-color: #0d6efd !important; }
+  #ticketTable thead th {
+    background-color: transparent !important;
+    color: #fff;
+    border-color: rgba(255,255,255,0.3);
+  }
+
+  #ticketTable tbody td.dataTables_empty {
+    text-align: center !important;
+    vertical-align: middle !important;
+    font-weight: 600;
+    color: #6c757d;
+    padding: 18px 0 !important;
+  }
+
+  .sib-mini-card a{
+    text-decoration: underline !important;
+  }
+
+  .dash-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    padding: 10px 14px;
+  }
+
+  .sib-mini-card{
+    position: relative;
+    background: #fff3f0;
+    border-radius: 22px;
+    color: #111;
+    height: 100%;
+  }
+
+  .sib-mini-card::after{
+    content:"";
+    position:absolute;
+    inset:16px;
+    border:1px dashed #333;
+    border-radius:18px;
+    pointer-events:none;
+  }
+
+  .sib-mini-card *{
+    position: relative;
+    z-index: 2;
+  }
+
+  .sib-mini-card.no-ob .dash-ob{
+    border-left: none !important;
+    padding-left: 0 !important;
+  }
+
+  .dash-head{
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .dash-ob{
+    border-left: 1px solid #ddd;
+    padding-left: 10px;
+  }
+
+  .dashboard_top{
+    height: 100%;
+  }
+
+  @media (max-width: 1400px){
+    .dash-track{
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 1200px){
+    .dash-card{
+      flex: 0 0 calc((100% - 28px) / 3);
+    }
+  }
+
+  @media (max-width: 992px){
+    .dash-track{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 768px){
+    .clear-dashboard-btn{
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 576px){
+    .dash-track{
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-action-bar{
+      justify-content: stretch;
+    }
+  }
+
+  tr.ticket-received-row > td {
+    background-color: #d1e7dd !important;
+  }
+
+
+.action-taken-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #198754;
+  font-weight: 700;
+}
+
+.action-taken-check .box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #198754;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #d1e7dd;
+  color: #198754;
+  font-size: 12px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  {% if messages %}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+      {% for message in messages %}
+        <div class="toast align-items-center text-white bg-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} border-0 show mb-2">
+          <div class="d-flex">
+            <div class="toast-body">
+              {% if message.tags == 'success' %} ✅
+              {% elif message.tags == 'error' %} ❌
+              {% elif message.tags == 'warning' %} ⚠️
+              {% elif message.tags == 'info' %} ℹ️
+              {% endif %}
+              {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="card main-card mb-4 mt-4">
+    <div class="card-body bg-body-tertiary border-top">
+
+      {% if user.is_superuser or show_creator_dashboard %}
+        <div class="p-3 bg-white rounded border mb-3">
+
+          {% if show_clear_dashboard %}
+            <div class="dashboard-action-bar">
+              <a class="btn btn-sm btn-outline-secondary clear-dashboard-btn"
+                 href="{% url 'tickets:ticket_list' %}?from_date={{ from_date }}&to_date={{ to_date }}&assoc_state={{ assoc_state }}&search={{ search_query }}&status={{ status_filter }}&module={{ module_filter }}&page_size={{ page_size }}">
+                Clear Dashboard
+              </a>
+            </div>
+          {% endif %}
+
+          <div class="dash-carousel" data-carousel="created">
+            <div class="dash-viewport">
+              <div class="dash-track">
+                <div class="dash-card card-blue">
+                  <div class="dash-title">Total Queries Created</div>
+                  <div class="dash-tiles single tile-blue">
+                    <a class="dash-tile {% if not created_total %}is-disabled{% endif %}"
+                       href="?scope=created&created_bucket=total{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Total</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-list"></i>
+                        <span class="tile-count">{{ created_total|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-amber">
+                  <div class="dash-title">Pending Queries</div>
+                  <div class="dash-tiles single tile-amber">
+                    <a class="dash-tile {% if not created_pending_total %}is-disabled{% endif %}"
+                       href="?scope=created&created_bucket=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Pending</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-hourglass-half"></i>
+                        <span class="tile-count">{{ created_pending_total|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-green">
+                  <div class="dash-title">Reply Received Queries</div>
+                  <div class="dash-tiles single tile-green">
+                    <a class="dash-tile {% if not created_received_total %}is-disabled{% endif %}"
+                       href="?scope=created&created_bucket=received{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Received</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-inbox"></i>
+                        <span class="tile-count">{{ created_received_total|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-amber">
+                  <div class="dash-title">Partial Reply Received</div>
+                  <div class="dash-tiles single tile-amber">
+                    <a class="dash-tile {% if not created_received_partial %}is-disabled{% endif %}"
+                       href="?scope=created&created_bucket=partial_received{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Partial Received</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-adjust"></i>
+                        <span class="tile-count">{{ created_received_partial|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-red">
+                  <div class="dash-title">Reopened Queries</div>
+                  <div class="dash-tiles single tile-red">
+                    <a class="dash-tile {% if not created_reopened %}is-disabled{% endif %}"
+                       href="?scope=created&created_bucket=reopened{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Reopen</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-rotate-left"></i>
+                        <span class="tile-count">{{ created_reopened|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-gray">
+                  <div class="dash-title">Closed Queries</div>
+                  <div class="dash-tiles single tile-gray">
+                    <a class="dash-tile {% if not created_closed %}is-disabled{% endif %}"
+                       href="?scope=created&created_bucket=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Closed</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-lock"></i>
+                        <span class="tile-count">{{ created_closed|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mt-3">
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3">
+                  <h5 class="mb-3 text-center">3A (New NGO)</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob">OB</div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if a_ngo_new %}<a href="?cat=3A&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if a_ob_new %}<a href="?cat=3A&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ob_new }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if a_ngo_pending %}<a href="?cat=3A&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if a_ob_pending %}<a href="?cat=3A&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ob_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if a_ngo_closed %}<a href="?cat=3A&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if a_ob_closed %}<a href="?cat=3A&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ob_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3">
+                  <h5 class="mb-3 text-center">3B (Prior Permission)</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob">OB</div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if b_ngo_new %}<a href="?cat=3B&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if b_ob_new %}<a href="?cat=3B&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ob_new }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if b_ngo_pending %}<a href="?cat=3B&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if b_ob_pending %}<a href="?cat=3B&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ob_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if b_ngo_closed %}<a href="?cat=3B&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if b_ob_closed %}<a href="?cat=3B&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ob_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3">
+                  <h5 class="mb-3 text-center">3C Renewal</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob">OB</div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if c_ngo_new %}<a href="?cat=3C&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if c_ob_new %}<a href="?cat=3C&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ob_new }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if c_ngo_pending %}<a href="?cat=3C&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if c_ob_pending %}<a href="?cat=3C&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ob_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if c_ngo_closed %}<a href="?cat=3C&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if c_ob_closed %}<a href="?cat=3C&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ob_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3 no-ob">
+                  <h5 class="mb-3 text-center">6E (Change in OB)</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">OB</div>
+                    <div class="text-center fw-bold dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if e_ob_new %}
+                        <a href="?cat=6E&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ e_ob_new }}</a>
+                      {% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if e_ob_pending %}
+                        <a href="?cat=6E&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ e_ob_pending }}</a>
+                      {% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if e_ob_closed %}
+                        <a href="?cat=6E&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ e_ob_closed }}</a>
+                      {% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3 no-ob">
+                  <h5 class="mb-3 text-center">Surrender</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if s_ngo_new %}<a href="?cat=7&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ s_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if s_ngo_pending %}<a href="?cat=7&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ s_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if s_ngo_closed %}<a href="?cat=7&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ s_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      {% elif show_assignee_dashboard %}
+        <div class="p-3 bg-white rounded border mb-3">
+
+          {% if show_clear_dashboard %}
+            <div class="dashboard-action-bar">
+              <a class="btn btn-sm btn-outline-secondary clear-dashboard-btn"
+                 href="{% url 'tickets:ticket_list' %}?from_date={{ from_date }}&to_date={{ to_date }}&assoc_state={{ assoc_state }}&search={{ search_query }}&status={{ status_filter }}&module={{ module_filter }}&page_size={{ page_size }}">
+                Clear Dashboard
+              </a>
+            </div>
+          {% endif %}
+
+          <div class="dash-carousel" data-carousel="my">
+            <div class="dash-viewport">
+              <div class="dash-track">
+                <div class="dash-card card-blue">
+                  <div class="dash-title">Total Queries (My Tickets)</div>
+                  <div class="dash-tiles single tile-blue">
+                    <a class="dash-tile {% if not my_total %}is-disabled{% endif %}"
+                       href="?scope=my&my_bucket=total{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Total</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-list"></i>
+                        <span class="tile-count">{{ my_total|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-amber">
+                  <div class="dash-title">New Queries</div>
+                  <div class="dash-tiles single tile-amber">
+                    <a class="dash-tile {% if not my_new_total %}is-disabled{% endif %}"
+                       href="?scope=my&my_bucket=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">New</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-plus-circle"></i>
+                        <span class="tile-count">{{ my_new_total|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-green">
+                  <div class="dash-title">Pending Queries</div>
+                  <div class="dash-tiles single tile-green">
+                    <a class="dash-tile {% if not my_pending_total %}is-disabled{% endif %}"
+                       href="?scope=my&my_bucket=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Pending</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-hourglass-half"></i>
+                        <span class="tile-count">{{ my_pending_total|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-red">
+                  <div class="dash-title">Reopened Queries</div>
+                  <div class="dash-tiles single tile-red">
+                    <a class="dash-tile {% if not my_reopened %}is-disabled{% endif %}"
+                       href="?scope=my&my_bucket=reopened{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Reopen</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-rotate-left"></i>
+                        <span class="tile-count">{{ my_reopened|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+
+                <div class="dash-card card-gray">
+                  <div class="dash-title">Closed Queries</div>
+                  <div class="dash-tiles single tile-gray">
+                    <a class="dash-tile {% if not my_closed %}is-disabled{% endif %}"
+                       href="?scope=my&my_bucket=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}">
+                      <div class="tile-label">Closed</div>
+                      <div class="tile-icon">
+                        <i class="fa fa-lock"></i>
+                        <span class="tile-count">{{ my_closed|default:0 }}</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-3 mt-3">
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3">
+                  <h5 class="mb-3 text-center">3A (New NGO)</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob">OB</div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if a_ngo_new %}<a href="?cat=3A&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if a_ob_new %}<a href="?cat=3A&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ob_new }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if a_ngo_pending %}<a href="?cat=3A&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if a_ob_pending %}<a href="?cat=3A&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ob_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if a_ngo_closed %}<a href="?cat=3A&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if a_ob_closed %}<a href="?cat=3A&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold">{{ a_ob_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3">
+                  <h5 class="mb-3 text-center">3B (Prior Permission)</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob">OB</div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if b_ngo_new %}<a href="?cat=3B&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if b_ob_new %}<a href="?cat=3B&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ob_new }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if b_ngo_pending %}<a href="?cat=3B&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if b_ob_pending %}<a href="?cat=3B&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ob_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if b_ngo_closed %}<a href="?cat=3B&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if b_ob_closed %}<a href="?cat=3B&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ b_ob_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3">
+                  <h5 class="mb-3 text-center">3C Renewal</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob">OB</div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if c_ngo_new %}<a href="?cat=3C&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if c_ob_new %}<a href="?cat=3C&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ob_new }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if c_ngo_pending %}<a href="?cat=3C&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if c_ob_pending %}<a href="?cat=3C&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ob_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if c_ngo_closed %}<a href="?cat=3C&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob">
+                      {% if c_ob_closed %}<a href="?cat=3C&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ c_ob_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3 no-ob">
+                  <h5 class="mb-3 text-center">6E (Change in OB)</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">OB</div>
+                    <div class="text-center fw-bold dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if e_ob_new %}
+                        <a href="?cat=6E&sec=OFFICE_BEARER&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ e_ob_new }}</a>
+                      {% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if e_ob_pending %}
+                        <a href="?cat=6E&sec=OFFICE_BEARER&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ e_ob_pending }}</a>
+                      {% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if e_ob_closed %}
+                        <a href="?cat=6E&sec=OFFICE_BEARER&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ e_ob_closed }}</a>
+                      {% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="col">
+              <div class="dashboard_top">
+                <div class="sib-mini-card p-3 no-ob">
+                  <h5 class="mb-3 text-center">Surrender</h5>
+
+                  <div class="dash-grid dash-head">
+                    <div></div>
+                    <div class="text-center fw-bold">NGO</div>
+                    <div class="text-center fw-bold dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">New</div>
+                    <div class="text-center">
+                      {% if s_ngo_new %}<a href="?cat=7&sec=NGO&cat_status=new{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ s_ngo_new }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Pending</div>
+                    <div class="text-center">
+                      {% if s_ngo_pending %}<a href="?cat=7&sec=NGO&cat_status=pending{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ s_ngo_pending }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                  <div class="dash-grid">
+                    <div class="fw-semibold">Closed</div>
+                    <div class="text-center">
+                      {% if s_ngo_closed %}<a href="?cat=7&sec=NGO&cat_status=closed{% if base_filter_qs %}&{{ base_filter_qs }}{% endif %}" class="fw-bold text-decoration-none">{{ s_ngo_closed }}</a>{% else %}0{% endif %}
+                    </div>
+                    <div class="text-center dash-ob"></div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="card-header d-flex align-items-center">
+        <h5 class="mb-0">SIB Query</h5>
+
+        {% if create_ticket %}
+          <a href="{% url 'tickets:import_page' %}" class="btn btn-primary ms-auto">
+            <span class="d-none d-sm-inline"><i class="fa fa-plus"></i> Application details</span>
+          </a>
+          <a href="{% url 'tickets:create_ticket' %}" class="btn btn-primary ms-2">
+            <span class="d-none d-sm-inline"><i class="fa fa-plus"></i> Create SIB Query</span>
+          </a>
+        {% endif %}
+
+        {% if user.is_superuser %}
+          <a href="{% url 'tickets:first_form' %}"
+             {% if create_ticket %} class="btn btn-primary ms-2" {% else %} class="btn btn-primary" style="margin-left: 69.5rem !important;" {% endif %}>
+            <span class="d-none d-sm-inline"><i class="fa fa-upload"></i> SIB Query</span>
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="p-3 bg-light rounded border mb-3">
+        <div class="row g-3 align-items-end">
+
+          <div class="col-lg-8">
+            <form method="get" class="row g-2 align-items-end">
+
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">From date</label>
+                <input type="date" name="from_date" class="form-control" value="{{ from_date }}">
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">To date</label>
+                <input type="date" name="to_date" class="form-control" value="{{ to_date }}">
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Association State</label>
+                <select name="assoc_state" class="form-select">
+                  <option value="">All States</option>
+                  {% for s in assoc_states %}
+                    <option value="{{ s }}" {% if assoc_state == s %}selected{% endif %}>{{ s }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+                <a href="{% url 'tickets:ticket_list' %}" class="btn btn-outline-secondary w-100">Reset</a>
+              </div>
+
+              <input type="hidden" name="search" value="{{ search_query }}">
+              <input type="hidden" name="status" value="{{ status_filter }}">
+              <input type="hidden" name="module" value="{{ module_filter }}">
+              <input type="hidden" name="page_size" value="{{ page_size }}">
+              <!-- preserve dashboard/category filters -->
+              <input type="hidden" name="scope" value="{{ request.GET.scope }}">
+              <input type="hidden" name="created_bucket" value="{{ request.GET.created_bucket }}">
+              <input type="hidden" name="my_bucket" value="{{ request.GET.my_bucket }}">
+              <input type="hidden" name="cat" value="{{ cat }}">
+              <input type="hidden" name="sec" value="{{ sec }}">
+              <input type="hidden" name="cat_status" value="{{ cat_status }}">
+              <input type="hidden" name="page" value="1">
+            </form>
+          </div>
+
+          <div class="col-lg-4">
+            <form method="get" class="d-flex gap-2 justify-content-end align-items-end">
+              <div style="max-width: 240px; width:100%;">
+                <label class="form-label fw-semibold">Search</label>
+                <input type="text" name="search" class="form-control"
+                       placeholder="Search..." value="{{ search_query }}">
+              </div>
+
+              <button type="submit" class="btn btn-primary">Search</button>
+
+              {% if search_query %}
+                <a class="btn btn-outline-secondary"
+                   href="{% url 'tickets:ticket_list' %}?from_date={{ from_date }}&to_date={{ to_date }}&assoc_state={{ assoc_state }}&status={{ status_filter }}&module={{ module_filter }}&page_size={{ page_size }}{% if request.GET.scope %}&scope={{ request.GET.scope }}{% endif %}{% if request.GET.created_bucket %}&created_bucket={{ request.GET.created_bucket }}{% endif %}{% if request.GET.my_bucket %}&my_bucket={{ request.GET.my_bucket }}{% endif %}{% if cat %}&cat={{ cat }}{% endif %}{% if sec %}&sec={{ sec }}{% endif %}{% if cat_status %}&cat_status={{ cat_status }}{% endif %}">
+                  Clear
+                </a>
+              {% endif %}
+
+              <input type="hidden" name="from_date" value="{{ from_date }}">
+              <input type="hidden" name="to_date" value="{{ to_date }}">
+              <input type="hidden" name="assoc_state" value="{{ assoc_state }}">
+              <input type="hidden" name="status" value="{{ status_filter }}">
+              <input type="hidden" name="module" value="{{ module_filter }}">
+              <input type="hidden" name="page_size" value="{{ page_size }}">
+              <!-- preserve dashboard/category filters -->
+              <input type="hidden" name="scope" value="{{ request.GET.scope }}">
+              <input type="hidden" name="created_bucket" value="{{ request.GET.created_bucket }}">
+              <input type="hidden" name="my_bucket" value="{{ request.GET.my_bucket }}">
+              <input type="hidden" name="cat" value="{{ cat }}">
+              <input type="hidden" name="sec" value="{{ sec }}">
+              <input type="hidden" name="cat_status" value="{{ cat_status }}">
+              <input type="hidden" name="page" value="1">
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table id="ticketTable" class="table table-hover table-striped table-bordered nowrap align-middle" style="width:100%">
+          <thead>
+            <tr class="bg-primary text-white">
+              <th class="no-sort">S.No.</th>
+              <th>Unique No.</th>
+              <th>Status</th>
+
+              {# Actions column is role-wise only. Do NOT use ticket inside thead. #}
+              {% if user.is_superuser or show_creator_dashboard %}
+              <th class="no-sort"
+                  style="{% if user.is_superuser %}min-width:10rem;{% else %}min-width:4rem; width:4rem;{% endif %}">
+                Actions
+              </th>
+            {% endif %}
+
+              <th>MHA File No.</th>
+              <th>Branch File No.</th>
+
+              {% if user.is_superuser %}
+                <th>Created By</th>
+                <th>Association Name</th>
+                <th>Association State</th>
+                <th>SIB</th>
+                <th>User Details</th>
+              {% elif show_creator_dashboard %}
+                <th>Association Name</th>
+                <th>SIB</th>
+              {% elif show_assignee_dashboard %}
+                <th>Created By</th>
+                <th>Association Name</th>
+              {% endif %}
+
+              <th>Created Date</th>
+              <th>Reply Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for ticket in tickets %}
+              <tr class="{% if ticket.answer_status == 'Received' %}ticket-received-row{% endif %}">
+                <td class="row-num"></td>
+
+                <td>
+                  
+                    <a href="{% url 'tickets:ticket_detail' ticket.pk %}{% if ticket.best_ra_id %}?reassign={{ ticket.best_ra_id }}{% endif %}"
+                       title="View ticket detail">
+                      {{ ticket.id }}
+                    </a>
+                  
+                </td>
+
+                <td>
+                  {% if ticket.answer_status == "Received" %}
+                    <span style="color: green; font-weight: 600;">Received</span>
+                  {% elif ticket.answer_status == "Replied" %}
+                    <span style="color: green; font-weight: 600;">Replied</span>
+                  {% elif ticket.answer_status == "Action Taken" %}
+                    <span style="color: #0d6efd; font-weight: 600;">Action Taken</span>
+                  {% elif "Partial Received" in ticket.answer_status %}
+                    <span style="color: #0d6efd; font-weight: 600;">{{ ticket.answer_status }}</span>
+                  {% else %}
+                    <span style="color: orange; font-weight: 600;">Pending</span>
+                  {% endif %}
+                </td>
+
+                {% if user.is_superuser or show_creator_dashboard %}
+                  <td>
+                    {# Eye/view icon only for admin. #}
+                    {% if user.is_superuser %}
+                      <a href="{% url 'tickets:ticket_detail' ticket.pk %}{% if ticket.best_ra_id %}?reassign={{ ticket.best_ra_id }}{% endif %}"
+                         class="bottom-tooltip" title="View ticket detail">
+                        <i class="fa fa-eye"></i>
+                      </a>
+                    {% endif %}
+
+                    {% if request.user == ticket.created_by and ticket.status != "closed" and ticket.has_report %}
+                      <button class="bottom-tooltip_reassign reassignBtn" title="Reassign"
+                              data-ticket-id="{{ ticket.id }}">
+                        <i class="fa fa-repeat"></i>
+                      </button>
+                    {% endif %}
+
+                    {% if request.user == ticket.created_by %}
+                      <a href="{% url 'tickets:view_ticket_history' ticket.id %}"
+                         class="bottom-tooltip" title="View history">
+                        <i class="fas fa-history"></i>
+                      </a>
+                    {% endif %}
+
+                    {% if ticket.admin_can_modify %}
+                      <a href="{% url 'tickets:edit_ticket' ticket.id %}"
+                         class="bottom-tooltip me-2 text-primary"
+                         title="Edit ticket">
+                        <i class="fa fa-pen"></i>
+                      </a>
+
+                      <button type="button"
+                              class="bottom-tooltip btn btn-link p-0 text-danger deleteTicketBtn"
+                              title="Delete ticket"
+                              data-ticket-id="{{ ticket.id }}"
+                              data-ticket-name="{{ ticket.id }}">
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    {% endif %}
+
+                    {# Creator/Admin checkbox only. No user ACTION_TAKEN check here. #}
+                    {% if ticket.created_by_id == user.id or user.is_superuser %}
+                      {% if ticket.answer_status == "Received" or "Partial Received" in ticket.answer_status %}
+                        {% if ticket.has_action_taken_by_creator %}
+                          <span class="action-taken-check" title="Creator/Admin Action Taken">
+                            <span class="box"><i class="fa fa-check"></i></span>
+                          </span>
+                        {% else %}
+                          <input
+                            type="checkbox"
+                            class="creator-action-checkbox"
+                            data-url="{% url 'tickets:creator_action_taken' ticket.id %}"
+                            title="Creator/Admin Action Taken"
+                          >
+                        {% endif %}
+                      {% endif %}
+                    {% endif %}
+                    
+                  </td>
+                {% endif %}
+
+                <td>{{ ticket.mha_file_no|default:"-" }}</td>
+                <td>{{ ticket.file_no|default:"-" }}</td>
+
+                {% if user.is_superuser %}
+                  <td>
+                    {% if ticket.created_by %}
+                      {{ ticket.created_by.first_name }} {{ ticket.created_by.last_name }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>{{ ticket.models_object|default:"-" }}</td>
+                  <td>{{ ticket.osdl.association_state|default:"-" }}</td>
+                  <td>{{ ticket.sib_unit_display|default:"-" }}</td>
+                  <td>
+                    {% for assignee in ticket.current_assignees %}
+                      <div>
+                        {{ assignee.first_name }} {{ assignee.last_name }}
+                        {% if assignee.rank %} ({{ assignee.rank }}){% endif %}
+                        {% if assignee.ucs_no %} | UCS: {{ assignee.ucs_no }}{% endif %}
+                        {% if assignee.phone_no %} | Username: {{ assignee.phone_no }}{% endif %}
+                      </div>
+                    {% empty %}
+                      -
+                    {% endfor %}
+                  </td>
+
+                {% elif show_creator_dashboard %}
+                  <td>{{ ticket.models_object|default:"-" }}</td>
+                  <td>{{ ticket.sib_unit_display|default:"-" }}</td>
+
+                {% elif show_assignee_dashboard %}
+                  <td>
+                    {% if ticket.created_by %}
+                      {{ ticket.created_by.first_name }} {{ ticket.created_by.last_name }}
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                  <td>{{ ticket.models_object|default:"-" }}</td>
+                {% endif %}
+
+                <td data-order="{{ ticket.created_at|date:'Y-m-d H:i:s' }}">
+                  {{ ticket.created_at|date:"d M Y h:i A" }}
+                </td>
+
+                <td data-order="{% if ticket.reply_date %}{{ ticket.reply_date|date:'Y-m-d H:i:s' }}{% endif %}">
+                  {% if ticket.reply_date %}
+                    {{ ticket.reply_date|date:"d M Y h:i A" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+
+          <form method="get" class="d-flex align-items-center gap-2 mb-0">
+            <label class="mb-0 small text-muted">Page size</label>
+            <select name="page_size" class="form-select form-select-sm" style="width:120px;"
+                    onchange="this.form.submit()">
+              {% for s in allowed_sizes %}
+                <option value="{{ s }}" {% if page_size == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+
+            <input type="hidden" name="search" value="{{ search_query }}">
+            <input type="hidden" name="from_date" value="{{ from_date }}">
+            <input type="hidden" name="to_date" value="{{ to_date }}">
+            <input type="hidden" name="assoc_state" value="{{ assoc_state }}">
+            <input type="hidden" name="status" value="{{ status_filter }}">
+            <input type="hidden" name="module" value="{{ module_filter }}">
+
+            <!-- preserve dashboard/category filters -->
+            <input type="hidden" name="scope" value="{{ request.GET.scope }}">
+            <input type="hidden" name="created_bucket" value="{{ request.GET.created_bucket }}">
+            <input type="hidden" name="my_bucket" value="{{ request.GET.my_bucket }}">
+            <input type="hidden" name="cat" value="{{ cat }}">
+            <input type="hidden" name="sec" value="{{ sec }}">
+            <input type="hidden" name="cat_status" value="{{ cat_status }}">
+
+            <input type="hidden" name="page" value="1">
+          </form>
+
+          <p class="mb-0 small text-muted">
+            Showing {{ tickets.start_index }} to {{ tickets.end_index }} of {{ tickets.paginator.count }} entries
+          </p>
+        </div>
+
+        {% if tickets.has_other_pages %}
+          <nav aria-label="Page navigation">
+            <ul class="pagination mb-0">
+              {% if tickets.has_previous %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?page={{ tickets.previous_page_number }}{% if preserved_qs %}&{{ preserved_qs }}{% endif %}">
+                    &laquo;
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+              {% endif %}
+
+              {% for i in tickets.paginator.page_range %}
+                {% if tickets.number == i %}
+                  <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                {% elif i > tickets.number|add:'-3' and i < tickets.number|add:'3' %}
+                  <li class="page-item">
+                    <a class="page-link"
+                       href="?page={{ i }}{% if preserved_qs %}&{{ preserved_qs }}{% endif %}">{{ i }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if tickets.has_next %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?page={{ tickets.next_page_number }}{% if preserved_qs %}&{{ preserved_qs }}{% endif %}">
+                    &raquo;
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+      </div>
+
+      <div id="reassignModal" class="modal" style="display:none;">
+        <div class="modal-content p-3" style="margin-left: 17rem; width: 871px; margin-top: 7rem;">
+          <h5>Re-assign SIB Query</h5>
+          <form id="userForm" method="POST" data-ticket-id="">
+            {% csrf_token %}
+            <div id="reassignRow" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Select State</label>
+                <select class="form-select state-select" name="state" required>
+                  <option value="">Select State</option>
+                  {% for state in states %}
+                    <option value="{{ state.id }}">{{ state.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Select Group</label>
+                <select class="form-select group-select" name="group" required>
+                  <option value="">-- Select Group --</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Select User</label>
+                <select class="form-select user-select" name="user_id" required>
+                  <option value="">-- Select User --</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3 mt-3">
+              <label for="reason" class="form-label">Reason</label>
+              <textarea class="form-control reason" id="reason" name="reason"
+                        placeholder="Enter SIB Query description..."></textarea>
+            </div>
+
+            <div class="mt-3 d-flex gap-2">
+              <button id="submitReassign" type="submit" class="btn btn-primary">Re-assign</button>
+              <button id="closeReassign" type="button" class="btn btn-secondary">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/jquery.validate.js' %}"></script>
+<script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/SweetAlert2.js' %}"></script>
+
+<script>
+$(document).ready(function () {
+  $.fn.dataTable.ext.errMode = 'none';
+
+  const $table = $('#ticketTable');
+
+  $table.on('error.dt', function(e, settings, techNote, message) {
+    console.warn('DataTables:', message);
+  });
+
+  const createdAtIdx = $table.find('thead th').filter(function () {
+    return $(this).text().trim().toLowerCase() === 'created at';
+  }).index();
+
+  const table = $table.DataTable({
+    paging: false,
+    info: false,
+    searching: false,
+    ordering: true,
+    order: (createdAtIdx >= 0) ? [[createdAtIdx, 'desc']] : [],
+    lengthChange: false,
+    autoWidth: false,
+    columnDefs: [
+      { targets: 'no-sort', orderable: false }
+    ],
+    language: { emptyTable: "No SIB Query found." }
+  });
+
+  function renumberRows() {
+    const nodes = table.rows({ page: 'current' }).nodes();
+    if (!nodes || nodes.length === 0) return;
+
+    const startIndex = {{ tickets.start_index|default:1 }};
+
+    $(nodes).each(function (i) {
+      $(this).find('td.row-num').text(startIndex + i);
+    });
+  }
+
+  table.on('draw.dt order.dt', renumberRows);
+  renumberRows();
+
+  const reassignModal = $('#reassignModal');
+  const stateSelect = $('.state-select');
+  const groupSelect = $('.group-select');
+  const userSelect = $('.user-select');
+
+  stateSelect.on('change', function(){
+    const stateId = $(this).val();
+    groupSelect.html('<option value="">-- Select Group --</option>');
+    userSelect.html('<option value="">-- Select User --</option>');
+
+    if(stateId){
+      $.getJSON(`/tickets/units/?state_id=${stateId}`, data => {
+        (data.units || []).forEach(unit => groupSelect.append(new Option(unit, unit)));
+      });
+    }
+  });
+
+  groupSelect.on('change', function(){
+    const stateId = stateSelect.val();
+    const unit = $(this).val();
+    userSelect.html('<option value="">-- Select User --</option>');
+
+    if(stateId && unit){
+      $.getJSON(`/tickets/users/?state_id=${stateId}&unit=${encodeURIComponent(unit)}`, data => {
+        (data.users || []).forEach(user => userSelect.append(new Option(user.name, user.id)));
+      });
+    }
+  });
+
+  $('.reassignBtn').on('click', function(){
+    const ticketId = $(this).data('ticket-id');
+    $('#userForm').attr('data-ticket-id', ticketId);
+    reassignModal.show();
+  });
+
+  $('#closeReassign').on('click', function(e){
+    e.preventDefault();
+    reassignModal.hide();
+  });
+
+  $(window).on('click', function(e){
+    if(e.target && e.target.id === 'reassignModal'){
+      reassignModal.hide();
+    }
+  });
+
+  $('#userForm').on('submit', function(e){
+    e.preventDefault();
+
+    const ticketId = $(this).data('ticket-id');
+    const url = `/tickets/reassign_ticket/${ticketId}/`;
+
+    const formData = {
+      state: stateSelect.val(),
+      group: groupSelect.val(),
+      user: userSelect.val(),
+      reason: $('.reason').val(),
+      questions: []
+    };
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You are about to reassign this SIB Query.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, reassign it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: url,
+          type: 'POST',
+          data: JSON.stringify(formData),
+          headers: { 'X-CSRFToken': $("input[name=csrfmiddlewaretoken]").val() },
+          contentType: 'application/json',
+          success: function (res) {
+            if (res.responseCode == 200 || res.responseCode == "200") {
+              Swal.fire({
+                title: "Success!",
+                text: res.responseMessage,
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false
+              }).then(() => location.reload());
+            } else {
+              Swal.fire({ title: "Error!", text: res.responseMessage, icon: "error" });
+            }
+          },
+          error: function (xhr) {
+            Swal.fire({ title: "Error!", text: "Something went wrong.", icon: "error" });
+            console.error(xhr.responseText);
+          }
+        });
+      }
+    });
+  });
+});
+
+$('.deleteTicketBtn').on('click', function () {
+  const ticketId = $(this).data('ticket-id');
+  const deleteUrl = `/tickets/delete/${ticketId}/`;
+
+  Swal.fire({
+    title: "Are you sure?",
+    text: "This ticket will be hidden from listing and dashboard.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Yes, delete it"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      $.ajax({
+        url: deleteUrl,
+        type: "POST",
+        headers: {
+          "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val()
+        },
+        success: function (res) {
+          if (res.responseCode == 200 || res.responseCode == "200") {
+            Swal.fire({
+              title: "Deleted!",
+              text: res.responseMessage || "Ticket deleted successfully.",
+              icon: "success",
+              timer: 1500,
+              showConfirmButton: false
+            }).then(() => location.reload());
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: res.responseMessage || "Unable to delete ticket.",
+              icon: "error"
+            });
+          }
+        },
+        error: function () {
+          Swal.fire({
+            title: "Error!",
+            text: "Something went wrong while deleting ticket.",
+            icon: "error"
+          });
+        }
+      });
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener("change", function (e) {
+
+  if (!e.target.classList.contains("creator-action-checkbox")) return;
+
+  const checkbox = e.target;
+  const url = checkbox.dataset.url;
+
+  Swal.fire({
+    title: "Are you sure?",
+    text: "Do you want to mark this ticket as Action Taken?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#198754",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, confirm"
+  }).then((result) => {
+
+    if (!result.isConfirmed) {
+      checkbox.checked = false;
+      return;
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "X-Requested-With": "XMLHttpRequest"
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+
+      if (data.status === "success") {
+
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Action Taken marked successfully.",
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        checkbox.outerHTML = `
+          <span class="action-taken-check">
+            <span class="box"><i class="fa fa-check"></i></span>
+          </span>
+        `;
+
+      } else {
+        checkbox.checked = false;
+
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message || "Something went wrong."
+        });
+      }
+    })
+    .catch(() => {
+
+      checkbox.checked = false;
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Something went wrong."
+      });
+    });
+
+  });
+
+});
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% block title %}Edit ticket #{{ ticket.id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:720px">
+  <h2 class="mb-4">Edit ticket #{{ ticket.id }}</h2>
+  <form method="post" action="{% url 'tickets:update_ticket' ticket.id %}">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input type="text" name="title" class="form-control" value="{{ ticket.title }}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-control" rows="4">{{ ticket.description }}</textarea>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Link type</label>
+        <input type="text" name="link_type" class="form-control" value="{{ ticket.link_type }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Link ID</label>
+        <input type="text" name="link_id" class="form-control" value="{{ ticket.link_id }}">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">File / reference no.</label>
+        <input type="text" name="file_no" class="form-control" value="{{ ticket.file_no }}">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save changes</button>
+    <a href="{% url 'tickets:ticket_detail' ticket.id %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

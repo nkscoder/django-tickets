@@ -1,0 +1,559 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% load static %}
+
+{% block style_head %}
+  {# Core styles you already had #}
+  <link rel="stylesheet" href="{% static 'ticket/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/my_style.css' %}">
+  <link rel="stylesheet" href="{% static 'ticket/css/style.css' %}">
+{% endblock %}
+
+{% block extra_head %}
+  {# Page-specific vendor styles #}
+  <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+  {# DataTables Bootstrap 5 skin (match your new HTML look) #}
+  <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+  {% endblock %}
+{% block content %}
+
+<section class="d-flex align-items-center justify-content-center">
+  <div class="container">
+
+    <div class="card main-card my_card mb-4 mt-5 rounded-3">
+      <div class="card-header">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <!-- Keep the same heading style; show the related identifiers dynamically -->
+            <h3 class="my_ngo mb-1 mt-1">🔄 Reassignment #{{ reassignment.id }} • Ticket #{{ ticket.id }}</h3>
+          </div>
+          <div class="col-md-4">
+            <p class="status_disp" style="float: inline-end;" type="button">
+              <span class="d-none d-sm-inline-block">
+                {% if reassignment.is_final %}Final{% else %}Draft{% endif %}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body bg-body-tertiary border-top">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="case-study-area mt-4">
+                <div class="row">
+                  <div class="col-lg-12 col-sm-12">
+                    <div class="case_study_nav">
+                      <div class="case_study_menu">
+                        <ul class="menu-filtering">
+                          <li data-filter=".ticket" class="current_menu_item">Ticket</li>
+                          <li data-filter=".q_and_a">Questions & Answers</li>
+                          <li data-filter=".feedback_summary">Feedback / Summary</li>
+                          <li data-filter=".status_history">Status History</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row image_load">
+                  <!-- Ticket tab (use reassignment + ticket data) -->
+                  <div class="col-md-12 grid-item ticket mt-3">
+                    <ul class="timeline_ticket">
+                      <li>
+                        <div class="timeline-body">
+                          <div class="timeline-header">
+                            <span class="userimage"><img src="{% static 'img/avatar1.png' %}" alt=""></span>
+                            <span class="username my_span_color">{{ reassignment.reassigned_by.get_full_name }}</span>
+                            <span class="pull-right text-muted">
+                              <span class="my_span_color">Reassigned At : </span>
+                              {{ reassignment.created_at|date:"d-m-Y H:i" }}
+                            </span>
+                          </div>
+
+                          <div class="timeline-content">
+                            <h4 class="template-title my_span_color">
+                              Original Ticket #{{ ticket.id }}
+                            </h4>
+
+                            <p>
+                              <span class="my_span_color"><b> Ticket Title :</b></span><br>
+                              <span>{{ ticket.title }}</span>
+                            </p>
+
+                            <p>
+                              <span class="my_span_color"><b> Reason for Reassignment :</b></span><br>
+                              <span>{{ reassignment.reason|default:"No reason provided" }}</span>
+                            </p>
+
+                            <!-- Keep latest UI fields—populate from ticket -->
+                            <p>
+                              <span class="my_span_color"><b> Module Type :</b></span><br>
+                              <span>{{ ticket.models_name }}</span>
+                            </p>
+                            <p>
+                              <span class="my_span_color"><b> Module Data :</b></span><br>
+                              <span>{{ ticket.models_object|default:"N/A" }}</span>
+                            </p>
+                          </div>
+
+                          <div class="timeline-footer">
+                            <div class="timeline-likes">
+                              <div class="stats-right">
+                                <span class="stats-text my_span_color">Reassigned By :</span>
+                                <span>{{ reassignment.reassigned_by.get_full_name }}</span>
+                              </div>
+                              <div class="stats">
+                                <span class="stats-text my_span_color">New Assigned Users :</span>
+                                <span>
+                                  {% for u in reassignment.new_assigned_users.all %}
+                                    👤 {{ u.get_full_name }}{% if not forloop.last %}, {% endif %}
+                                  {% empty %}
+                                    <span class="text-muted">No users assigned</span>
+                                  {% endfor %}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- Q & A tab (creator vs assigned users) -->
+                  <div class="col-md-12 grid-item q_and_a mt-3">
+                    <ul class="quest_ticket">
+                      {% if request.user == reassignment.reassigned_by %}
+                        {% if reassignment.is_final %}
+                          {% for ans in answers %}
+                            <li>
+                              <div class="quest-body">
+                                <div class="quest-header">
+                                  <h6 class="my_span_color">Q{{ forloop.counter }}. {{ ans.question.text }}</h6>
+                                </div>
+                                <div class="ans-content">
+                                  <p style="padding-left: 10px; color: #000;">
+                                    {{ ans.answer|default:"No answer provided" }}
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                          {% empty %}
+                            <li><div class="quest-body"><div class="ans-content"><p class="text-muted" style="padding-left:10px;">No questions assigned.</p></div></div></li>
+                          {% endfor %}
+
+                          <!-- Creator can add feedback (matches old flows; UI kept) -->
+                          <li>
+                            <div class="quest-body">
+                              <div class="quest-header">
+                                <h6 class="my_span_color">Add your feedback</h6>
+                              </div>
+                              <div class="ans-content">
+                                <form id="reassign-form" action="{% url 'tickets:submit_reassign_form' reassignment.id %}" method="post">
+                                  {% csrf_token %}
+                                  <input type="text" name="message" class="form-control" aria-label="message…" placeholder="Add your feedback...">
+                                  <div class="mt-2 text-end">
+                                    <button type="submit" name="action" value="final" class="btn btn-success shadow-sm">💬 Submit Feedback</button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </li>
+
+                        {% else %}
+                          <li>
+                            <div class="quest-body">
+                              <div class="ans-content">
+                                <p class="text-muted" style="padding-left:10px;">
+                                  Questions & Answers are in Draft. Please wait for the assigned users to complete their responses.
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        {% endif %}
+
+                      {% elif request.user in reassignment.new_assigned_users.all %}
+                        <form id="reassign-form" action="{% url 'tickets:submit_reassign_form' reassignment.id %}" method="post">
+                          {% csrf_token %}
+                          {% for ans in answers %}
+                            <li>
+                              <div class="quest-body">
+                                <div class="quest-header">
+                                  <h6 class="my_span_color">Q{{ forloop.counter }}. {{ ans.question.text }}</h6>
+                                </div>
+                                <div class="ans-content">
+                                  <input type="text"
+                                         required
+                                         class="form-control answer-input mb-2 shadow-sm"
+                                         name="answer_{{ ans.question.id }}"
+                                         value="{{ ans.answer|default:'' }}"
+                                         {% if reassignment.is_final %}disabled{% endif %}
+                                         placeholder="Enter your answer...">
+                                </div>
+                              </div>
+                            </li>
+                          {% empty %}
+                            <li><div class="quest-body"><div class="ans-content"><p class="text-muted" style="padding-left:10px;">No questions assigned.</p></div></div></li>
+                          {% endfor %}
+
+                          {% if not reassignment.is_final %}
+                            <li class="mt-2">
+                              <div class="quest-body">
+                                <div class="quest-header">
+                                  <h6 class="my_span_color">Add your feedback</h6>
+                                </div>
+                                <div class="ans-content">
+                                  <input type="text" name="message" class="form-control" aria-label="message…" placeholder="Add your feedback...">
+                                </div>
+                              </div>
+                            </li>
+                            <li class="mt-2">
+                              <button type="submit" name="action" value="draft" class="btn btn-warning shadow-sm">💾 Save Draft</button>
+                              <button type="submit" name="action" value="final" class="btn btn-success shadow-sm">🚀 Submit Final</button>
+                            </li>
+                          {% endif %}
+                        </form>
+
+                      {% else %}
+                        <li><div class="quest-body"><div class="ans-content"><p class="text-muted" style="padding-left:10px;">You don't have permissions to answer.</p></div></div></li>
+                      {% endif %}
+                    </ul>
+                  </div>
+
+                  <!-- Feedback / Summary tab (interaction history + input, UI preserved) -->
+                  <div class="col-md-12 grid-item feedback_summary pt-1 mt-3">
+                    <section class="message-area">
+                      <div class="quest-body">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="chat-area">
+                              <div class="chatbox">
+                                <div class="modal-dialog-scrollable">
+                                  <div class="modal-content">
+                                    <div class="msg-head">
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1 ms-3">
+                                              <h3 class="my_span_color">Feedback History</h3>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="col-4">
+                                          <ul class="moreoption">
+                                            <li class="navbar nav-item dropdown">
+                                              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                              </a>
+                                              <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                              </ul>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div class="modal-body my_modal_body">
+                                      <div class="msg-body">
+                                        <ul>
+                                          {% for log in logs %}
+                                            {% if log.message %}
+                                              <li class="{% if log.user.id == request.user.id %}repaly{% else %}sender{% endif %}">
+                                                <p>
+                                                  {% if log.user.id == request.user.id %}
+                                                    <span style="color: #fffc8c;">You</span> → {{ log.message }}
+                                                  {% else %}
+                                                    <span style="color: #0029ff;">{{ log.user.first_name }} {{ log.user.last_name }}</span> → {{ log.message }}
+                                                  {% endif %}
+                                                </p>
+                                                <span class="time">{{ log.created_at|date:"h:i a" }}</span>
+                                              </li>
+                                            {% endif %}
+                                          {% empty %}
+                                            <li class="sender"><p class="text-muted">No Interaction yet</p></li>
+                                          {% endfor %}
+                                        </ul>
+                                      </div>
+                                    </div>
+
+                                    <!-- <div class="send-box">
+                                      <form action="{% url 'tickets:submit_reassign_form' reassignment.id %}" method="post">
+                                        {% csrf_token %}
+                                        {% if not reassignment.is_final %}
+                                          <input type="text" name="message" class="form-control" aria-label="message…" placeholder="Add your feedback...">
+                                          <div class="send-btns">
+                                            <div class="attach">
+                                              <div class="button-wrapper d-flex">
+                                                <span>
+                                                  <svg width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                                                    <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 0 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                                                  </svg>
+                                                </span>
+                                                <span class="label">attached file</span>
+                                                <input type="file" name="upload" id="upload" class="upload-box" placeholder="Upload File" aria-label="Upload File">
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <button type="submit" name="action" value="draft" class="btn btn-success shadow-sm">
+                                            <svg width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                                              <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                                            </svg>
+                                            Submit Feedback
+                                          </button>
+                                        {% else %}
+                                          <input type="text" class="form-control" placeholder="This reassignment is final" disabled>
+                                        {% endif %}
+                                      </form>
+                                    </div> -->
+
+                                  </div>
+                                </div>
+                              </div>
+                              <!-- chatbox -->
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  <!-- Status history tab (reuse your existing status_history if provided) -->
+                  <div class="col-md-12 grid-item status_history mt-3">
+                    <ul class="timeline">
+                      {% for history in status_history %}
+                        <li class="event">
+                          <div class="left-arrow"></div>
+                          <div class="time">
+                            {{ history.created_at|date:"d M Y" }}<br> {{ history.created_at|date:"H:i" }}
+                            <svg width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16">
+                              <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9z"/>
+                              <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1zm1.038 3.018a6 6 0 0 1 .924 0 6 6 0 1 1-.924 0M0 3.5c0 .753.333 1.429.86 1.887A8.04 8.04 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5M13.5 1c-.753 0-1.429.333-1.887.86a8.04 8.04 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1"/>
+                            </svg>
+                          </div>
+                          <h3>
+                            <span>
+                              <strong class="badge {% if history.old_status|lower == 'open' %}status_open{% elif history.old_status|lower == 'closed' %}status_closed{% elif history.old_status|lower == 'reassigned' or history.old_status|lower == 'reopen' %}status_reopen{% endif %}" style="font-size: 15px;">{{ history.old_status|default:'-' }}</strong>
+                              →
+                              <strong class="badge {% if history.new_status|lower == 'open' %}status_open{% elif history.new_status|lower == 'closed' %}status_closed{% elif history.new_status|lower == 'reassigned' or history.new_status|lower == 'reopen' %}status_reopen{% endif %}" style="font-size: 15px;">{{ history.new_status }}</strong>
+                            </span>
+                          </h3>
+                          <div class="description"><p><span class="my_disc">By {% if history.changed_by == request.user %}You{% else %}{{ history.changed_by.first_name|default:history.changed_by.first_name }}{% endif %}</span></p></div>
+                        </li>
+                      {% empty %}
+                        <li class="event"><div class="description"><p class="text-muted">No status changes yet.</p></div></li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+
+                  <!-- Bottom buttons: leaving your latest UI as-is -->
+                  <div class="col-md-12 mt-3 mb-3 text-end">
+                    <a href="" class="btn btn-outline-secondary shadow-sm">← Back to All Tickets</a>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/jquery.validate.js' %}"></script>
+<script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/SweetAlert2.js' %}"></script>
+<script>
+let clickedAction = "";
+
+$("#reassign-form button[type=submit]").on("click", function () {
+    clickedAction = $(this).val();
+});
+
+$("#reassign-form").on("submit", function(e) {
+    e.preventDefault();
+    let form = $(this);
+    let url = form.attr("action");
+    let formData = form.serialize() + "&action=" + clickedAction;
+
+    $.ajax({
+        url: url,
+        type: "POST",
+        data: formData,
+        success: function(response) {
+            if(response.responseCode === 200){
+                Swal.fire({
+                    title: "Success!",
+                    text: response.responseMessage,
+                    icon: "success",
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    if(response.is_final){
+                        // Lock Q&A and hide buttons if final
+                        form.find("input[type=text]").prop("disabled", true);
+                        form.find("button[name=action][value=draft], button[name=action][value=final]").hide();
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: "Error!",
+                    text: response.responseMessage,
+                    icon: "error",
+                    confirmButtonText: "OK"
+                });
+            }
+        },
+        error: function() {
+            Swal.fire({
+                title: "Error!",
+                text: "Something went wrong.",
+                icon: "error",
+                confirmButtonText: "OK"
+            });
+        }
+    });
+});
+
+$("#update-status-form").on("submit", function(e) {
+  e.preventDefault();
+  let form = $(this);
+  let url = form.attr("action");
+  let status = form.find("select[name='status']").val();
+
+  $.ajax({
+    url: url,
+    type: "POST",
+    data: {
+      status: status,
+      csrfmiddlewaretoken: form.find("input[name='csrfmiddlewaretoken']").val()
+    },
+    success: function(response) {
+      if (response.responseCode === 200) {
+        Swal.fire({
+          title: "Success!",
+          text: response.responseMessage,
+          icon: "success",
+          confirmButtonText: "OK"
+        }).then(() => {
+          // Update the status badge after user clicks OK
+          $(".badge.bg-info").text(response.new_status);
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: response.responseMessage,
+          icon: "error",
+          confirmButtonText: "OK"
+        });
+      }
+    },
+    error: function() {
+      Swal.fire({
+        title: "Error!",
+        text: "Something went wrong.",
+        icon: "error",
+        confirmButtonText: "OK"
+      });
+    }
+  });
+});
+
+</script>
+<script>
+$("#close-ticket-btn").on("click", function(e) {
+    e.preventDefault();
+
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you really want to close this ticket?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, close it"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let form = $("#close-ticket-form");
+            $.ajax({
+                url: form.attr("action"),
+                type: "POST",
+                data: form.serialize(),
+                success: function(response) {
+                    if (response.responseCode === 200) {
+                        Swal.fire({
+                            title: "Closed!",
+                            text: response.responseMessage,
+                            icon: "success",
+                            confirmButtonText: "OK"
+                        }).then(() => {
+                            // Reload or update UI
+                            $(".badge.bg-info").text(response.new_status);
+                            $("#close-ticket-btn").prop("disabled", true).text("Closed");
+                        });
+                    } else {
+                        Swal.fire("Error", response.responseMessage, "error");
+                    }
+                },
+                error: function() {
+                    Swal.fire("Error", "Something went wrong.", "error");
+                }
+            });
+        }
+    });
+});
+</script>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+        const filters = document.querySelectorAll(".menu-filtering li");
+        const items = document.querySelectorAll(".image_load .grid-item");
+
+        // Initially show first category items only (current_menu_item)
+        const activeFilter = document.querySelector(".menu-filtering .current_menu_item");
+        const initialFilter = activeFilter ? activeFilter.getAttribute("data-filter") : null;
+
+        if (initialFilter) {
+            items.forEach(item => {
+            if (item.classList.contains(initialFilter.slice(1))) {
+                item.style.display = "block";
+            } else {
+                item.style.display = "none";
+            }
+            });
+        }
+
+        // Handle click event for filtering
+        filters.forEach(filter => {
+            filter.addEventListener("click", function() {
+            filters.forEach(f => f.classList.remove("current_menu_item"));
+            this.classList.add("current_menu_item");
+
+            const filterValue = this.getAttribute("data-filter");
+
+            items.forEach(item => {
+                if (item.classList.contains(filterValue.slice(1))) {
+                item.style.display = "block";
+                item.style.opacity = "1";
+                item.style.transform = "scale(1)";
+                } else {
+                item.style.display = "none";
+                item.style.opacity = "0";
+                item.style.transform = "scale(0.95)";
+                }
+            });
+            });
+        });
+        });
+    </script>
+{% endblock %}

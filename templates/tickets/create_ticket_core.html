@@ -1,0 +1,81 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% block title %}Create ticket{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width:720px">
+  <h2 class="mb-4">Create ticket</h2>
+  <form id="create-ticket-form">
+  {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Title</label>
+      <input type="text" name="title" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-control" rows="4"></textarea>
+    </div>
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Link type</label>
+        <select name="link_type" class="form-select">
+          {% for value, label in link_types %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Link ID</label>
+        <input type="text" name="link_id" class="form-control">
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Reference / file no.</label>
+        <input type="text" name="file_no" class="form-control">
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Assignee user IDs (comma-separated)</label>
+      <input type="text" name="assignee_ids_raw" class="form-control" placeholder="e.g. 2, 5, 9" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Question IDs (comma-separated, optional)</label>
+      <input type="text" name="question_ids_raw" class="form-control" placeholder="e.g. 1, 2, 3">
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+  </form>
+  <div id="result" class="mt-3"></div>
+</div>
+<script>
+document.getElementById('create-ticket-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const fd = new FormData(this);
+  const assignee_ids = (fd.get('assignee_ids_raw') || '').split(',').map(s => parseInt(s.trim(), 10)).filter(Boolean);
+  const question_ids = (fd.get('question_ids_raw') || '').split(',').map(s => parseInt(s.trim(), 10)).filter(Boolean);
+  const body = {
+    title: fd.get('title'),
+    description: fd.get('description'),
+    link_type: fd.get('link_type'),
+    link_id: fd.get('link_id'),
+    file_no: fd.get('file_no'),
+    assignee_ids,
+    question_ids,
+    users: assignee_ids.map(id => ({ user_id: id, questions: question_ids })),
+  };
+  const res = await fetch("{% url 'tickets:store_ticket' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': fd.get('csrfmiddlewaretoken'),
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  const el = document.getElementById('result');
+  if (data.responseCode === 200) {
+    window.location.href = "/tickets/ticket_detail/" + data.ticket_id + "/";
+  } else {
+    el.className = 'alert alert-danger';
+    el.textContent = data.responseMessage || 'Error';
+  }
+});
+</script>
+{% endblock %}

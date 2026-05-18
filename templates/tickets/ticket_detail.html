@@ -1,0 +1,39 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% load static %}
+{% block content %}
+<div class="container-ld px-5 py-4">
+  <h4 class="fw-bold text-dark ps-2">Ticket Details</h4>
+
+  <div class="card p-4 mt-3" style="background: #f9f9f9;">
+    <h5>{{ ticket.title }}</h5>
+    <p><strong>Status:</strong> {{ ticket.status }}</p>
+    <p><strong>Created By:</strong> {{ ticket.created_by.username }}</p>
+    <p><strong>Created At:</strong> {{ ticket.created_at|date:"d M Y H:i" }}</p>
+    <p><strong>Description:</strong><br>{{ ticket.description }}</p>
+
+    <p><strong>Assigned Users:</strong>
+      {% for user in ticket.assigned_users.all %}
+        {{ user.username }}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+
+    <p><strong>Assigned Departments:</strong>
+      {% for dept in ticket.assigned_departments.all %}
+        {{ dept.name }}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  </div>
+
+  <h5 class="mt-4">Conversation Logs</h5>
+  <ul class="list-group mt-2">
+    {% for log in ticket.logs.all %}
+      <li class="list-group-item">
+        <strong>{{ log.user.username }}</strong>: {{ log.message }}
+        <div class="text-muted small">{{ log.created_at|date:"d M Y H:i" }}</div>
+      </li>
+    {% empty %}
+      <li class="list-group-item text-muted">No logs yet.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

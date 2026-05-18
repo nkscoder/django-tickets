@@ -1,0 +1,130 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% load static %}
+    
+{% block content %}
+<!-- <div class="navbar-menu-wrapper d-flex align-items-center justify-content-between" style=" margin-left: -6rem;
+    margin-top: 1rem;
+    width: 1477px;box-shadow: rgba(50, 50, 43, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;background-color: #fff;      border-top: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important; height: 4rem;">
+    <ul class=" nav nav-pills" style="    font-size: 0.812rem; ">
+        
+        <li class="nav-item" style="margin-left: 8rem;">
+            <a href="/main_menu/" class="nav-link">Home</a>
+        </li>
+        
+        <li class="nav-item" style="margin-left: 2rem;">
+            <a href="{% url 'tickets:dashboard' %}" class="nav-link">Ticket Dashboard</a>
+        </li>
+        
+        <li class="nav-item" style="margin-left: 2rem;">
+            <a href="{% url 'tickets:ticket_list' %}" class="nav-link">Tickets</a>
+        </li>
+    </ul>
+</div> -->
+<div class="container mt-5">
+  <h2 class="mb-4 text-center fw-bold">🎫 Ticket Dashboard</h2>
+
+  <div class="row g-4 justify-content-center">
+    
+    <!-- Total Tickets -->
+    <div class="col-md-3">
+      <div class="card shadow-lg border-0 ticket-card ticket-total">
+        <div class="card-body text-center">
+          <h5 class="card-title text-uppercase">Total Tickets</h5>
+          <h2 class="fw-bold text-dark">{{ total_tickets }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Open Tickets -->
+    <div class="col-md-3">
+      <div class="card shadow-lg border-0 ticket-card ticket-open">
+        <div class="card-body text-center">
+          <h5 class="card-title text-uppercase">Open Tickets</h5>
+          <h2 class="fw-bold text-primary">{{ open_tickets }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending Tickets -->
+    <div class="col-md-3">
+      <div class="card shadow-lg border-0 ticket-card ticket-pending">
+        <div class="card-body text-center">
+          <h5 class="card-title text-uppercase">Pending Tickets</h5>
+          <h2 class="fw-bold text-warning">{{ pending_tickets }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reassigned Tickets -->
+    <div class="col-md-3">
+      <div class="card shadow-lg border-0 ticket-card ticket-reassigned">
+        <div class="card-body text-center">
+          <h5 class="card-title text-uppercase">Reassigned Tickets</h5>
+          <h2 class="fw-bold text-info">{{ reassigned_tickets }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Closed Tickets -->
+    <div class="col-md-3">
+      <div class="card shadow-lg border-0 ticket-card ticket-closed">
+        <div class="card-body text-center">
+          <h5 class="card-title text-uppercase">Closed Tickets</h5>
+          <h2 class="fw-bold text-danger">{{ closed_tickets }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="text-center mt-4">
+    <a href="{% url 'tickets:ticket_list' %}" class="btn btn-primary btn-lg shadow-sm px-5">
+      View All Tickets
+    </a>
+  </div> -->
+</div>
+
+<style>
+.ticket-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #ffffff, #f0f0f0);
+}
+.ticket-card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Unique gradients per card */
+.ticket-total {
+  background: linear-gradient(145deg, #d1c4e9, #ffffff);
+}
+.ticket-open {
+  background: linear-gradient(145deg, #e3f2fd, #ffffff);
+}
+.ticket-pending {
+  background: linear-gradient(145deg, #fff8e1, #ffffff);
+}
+.ticket-reassigned {
+  background: linear-gradient(145deg, #e0f7fa, #ffffff);
+}
+.ticket-closed {
+  background: linear-gradient(145deg, #ffebee, #ffffff);
+}
+
+.card-title {
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: #555;
+}
+
+h2.fw-bold {
+  font-size: 2.2rem;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Optional subtle glowing effect */
+.ticket-card:hover h2 {
+  text-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+}
+</style>
+{% endblock %}

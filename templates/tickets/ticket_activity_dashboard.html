@@ -1,0 +1,130 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% load activity_extras %}
+{% block title %}Tickets — Activity{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+{% block content %}
+<div class="container-fluid mt-4 px-3">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <motion.div>
+      <h3 class="mb-0">Tickets Activity</h3>
+      <p class="text-muted small mb-0">{{ total_logs }} events on /tickets/ paths</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'tickets:ticket_list' %}" class="btn btn-outline-secondary btn-sm">Ticket list</a>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <motion.div class="card-header">Most visited ticket pages</div>
+        <div class="card-body"><canvas id="visitChart" height="200"></canvas></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header">Ticket action traces</div>
+        <div class="card-body"><canvas id="actionChart" height="200"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header">Recent activity</div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height:360px">
+            <table class="table table-sm mb-0">
+              <thead><tr><th>When</th><th>User</th><th>Action</th><th>Search</th><th>Path</th></tr></thead>
+              <tbody>
+                {% for log in recent_logs %}
+                <tr>
+                  <td class="text-nowrap small">{{ log.created_at|date:"d M H:i:s" }}</td>
+                  <td class="small">{% if log.user %}{{ log.user|user_display }}{% else %}—{% endif %}</td>
+                  <td><span class="badge bg-secondary">{{ log.action|default:log.event_type }}</span></td>
+                  <td class="small">{% if log|meta_search_term %}<span class="badge bg-info text-dark">{{ log|meta_search_term }}</span>{% else %}—{% endif %}</td>
+                  <td class="small text-truncate" style="max-width:160px" title="{{ log.path }}">{{ log.path }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted p-3">No ticket activity logged yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="card mb-3">
+        <div class="card-header">Recent searches in tickets</div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height:160px">
+            <table class="table table-sm mb-0">
+              <tbody>
+                {% for log in search_logs %}
+                <tr>
+                  <td class="small">{{ log.created_at|date:"d M H:i" }}</td>
+                  <td class="small">{{ log.user|user_display|default:"—" }}</td>
+                  <td><strong>{{ log|meta_search_term }}</strong></td>
+                </tr>
+                {% empty %}
+                <tr><td class="text-muted p-2">No searches recorded yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">Latest ticket actions</div>
+        <div class="card-body p-0">
+          <div class="table-responsive" style="max-height:160px">
+            <table class="table table-sm mb-0">
+              <tbody>
+                {% for t in action_traces %}
+                <tr>
+                  <td class="small">{{ t.performed_at|date:"d M H:i" }}</td>
+                  <td class="small"><a href="{% url 'tickets:ticket_detail' t.ticket_id %}">#{{ t.ticket_id }}</a></td>
+                  <td><span class="badge bg-primary">{{ t.action_key }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td class="text-muted p-2">No action traces yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof Chart === 'undefined') return;
+  const visitLabels = {{ visit_labels_json|safe }};
+  const visitValues = {{ visit_values_json|safe }};
+  const actionLabels = {{ action_labels_json|safe }};
+  const actionValues = {{ action_values_json|safe }};
+  if (visitLabels.length) {
+    new Chart(document.getElementById('visitChart'), {
+      type: 'bar',
+      data: { labels: visitLabels, datasets: [{ data: visitValues, backgroundColor: '#0d6efd' }] },
+      options: { responsive: true, plugins: { legend: { display: false } }, indexAxis: 'y' }
+    });
+  }
+  if (actionLabels.length) {
+    new Chart(document.getElementById('actionChart'), {
+      type: 'bar',
+      data: { labels: actionLabels, datasets: [{ data: actionValues, backgroundColor: '#198754' }] },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  }
+});
+</script>
+{% endblock %}

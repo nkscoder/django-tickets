@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Submission Form</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #ffffff;
+      border: 1px solid #ccc;
+      padding: 20px;
+    }
+    .header {
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 20px;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      font-size: 13px;
+    }
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+    label {
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    input, select {
+      padding: 6px;
+      font-size: 13px;
+      border: 1px solid #aaa;
+    }
+    .editor-toolbar {
+      border: 1px solid #aaa;
+      border-bottom: none;
+      padding: 5px;
+      background: #f0f0f0;
+      font-size: 12px;
+    }
+    .editor-toolbar button {
+      background: none;
+      border: 1px solid #bbb;
+      padding: 2px 6px;
+      margin-right: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .editor {
+      border: 1px solid #aaa;
+      min-height: 150px;
+      padding: 8px;
+      font-size: 13px;
+    }
+    .actions {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .actions button {
+      padding: 6px 18px;
+      font-size: 13px;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      International Affairs, Government Policies, Health Affairs, Kashmir, LWE, NGO, Narcotics, North East, National, Others, Pakistan, Terrorism, Social Media, VAPT<br />
+      <strong>Group:</strong> A, CY-SEC, D, E, H, I, J, K, M, N, NDC, O, P, Q, R, S, SA, Tech, VS, W, X, Y, Z, CS&IS, OPS, F
+    </div>
+
+    <form>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>File Number</label>
+          <input type="text" />
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" />
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select>
+            <option>Select Category</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" />
+        </div>
+
+        <div class="form-group">
+          <label>Group</label>
+          <select>
+            <option>Select Group</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Issued By</label>
+          <input type="text" />
+        </div>
+
+        <div class="form-group full">
+          <label>Files</label>
+          <input type="file" multiple />
+        </div>
+
+        <div class="form-group full">
+          <label>Content</label>
+          <div class="editor-toolbar">
+            <button type="button"><b>B</b></button>
+            <button type="button"><i>I</i></button>
+            <button type="button"><u>U</u></button>
+            <button type="button">• List</button>
+            <button type="button">1. List</button>
+          </div>
+          <div class="editor" contenteditable="true"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Submit</button>
+        <button type="reset">Reset</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

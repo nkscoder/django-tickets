@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-tickets"
+version = "1.0.0"
+description = "Generic Django ticket system (Layer A core) by nkscoder.in"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [
+    { name = "nkscoder.in", email = "contact@nkscoder.in" },
+]
+maintainers = [
+    { name = "nkscoder.in", email = "contact@nkscoder.in" },
+]
+keywords = ["django", "tickets", "workflow", "helpdesk", "nkscoder"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "Django>=4.2",
+    "djangorestframework>=3.14",
+]
+
+[project.urls]
+Homepage = "https://nkscoder.in"
+Documentation = "https://nkscoder.in"
+"Bug Reports" = "https://nkscoder.in"
+
+[project.optional-dependencies]
+dev = ["pytest-django"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tickets*"]

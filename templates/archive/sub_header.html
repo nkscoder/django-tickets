@@ -1,0 +1,43 @@
+{% load static %}
+<section class="" style="box-shadow: rgba(50, 50, 43, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;background-color: #fff; ">
+    <div class="container">
+        <header class="d-flex flex-wrap justify-content-center py-3">
+        <a href="{% url 'main_menu' %}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+            <img src="{% static 'img/ib_logo.svg' %}" alt="" width="45">
+        </a>
+
+        <ul class="nav nav-pills">
+            <li class="nav-item"><a href="{% url 'fiu:search_fiu' %}" class="nav-link">Home</a></li>
+<!--            <li class="nav-item"><a href="{% url 'ngo:document_dashboard' %}" class="nav-link">Dashboard</a></li>-->
+            <li class="nav-item"><a href="{% url 'fiu:str_analysis' %}" class="nav-link" aria-current="page">Analysis</a></li>
+            <li class="nav-item"><a href="{% url 'fiu:upload_str_document' %}" class="nav-link">Upload</a></li>
+	        <!--<li class="nav-item"><a href="{% url 'user_list' %}" class="nav-link">Add User</a></li>-->
+            {% if user.is_authenticated %}
+            <li class="nav-item"><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
+            {% else %}
+            <li class="nav-item"><button  type="button" data-bs-toggle="modal" data-bs-target="#loginModal"  class="nav-link" >Login</button></li>
+            <!--<button  type="button" data-bs-toggle="modal" data-bs-target="#loginModal"  class="nav-link" >Login</button>-->
+            {% endif %}
+        </ul>
+         <div class="d-none d-md-block">
+            <img src="{% static 'img/str_logo.png' %}" alt="NGO Logo" style="height: 44px; border-radius: 12px;">
+        </div>
+
+        </header>
+    </div>
+</section>
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div class="alert alert-danger">
+                {{ message }}
+            </div>
+        {% else %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endif %}

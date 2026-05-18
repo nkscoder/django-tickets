@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modules</title>
+  <style>
+    :root{
+      --outer:#5f5f5f;
+      --line:#bdbdbd;
+      --bg:#f4f4f4;
+      --panel:#ffffff;
+      --text:#2a2a2a;
+      --muted:#6f6f6f;
+      --header:#efefef;
+      --section:#efefef;
+      --danger:#b00020;
+      --accent:#d0d0d0;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text);}
+
+    /* Layout */
+    .app{
+      display:grid;
+      grid-template-columns: 290px 1fr;
+      min-height:100vh;
+      gap:18px;
+      padding:20px;
+      max-width:1400px;
+      margin:0 auto;
+    }
+    .card{
+      background:var(--panel);
+      border:2px solid var(--outer);
+    }
+
+    /* Left panel */
+    .left{
+      padding:18px 16px;
+    }
+    .left h2{
+      margin:0 0 12px;
+      font-size:18px;
+      font-weight:700;
+    }
+    .nav{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:10px;
+    }
+    .nav button{
+      text-align:left;
+      padding:10px 10px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .nav button.active{
+      background:var(--accent);
+      border-color:#8e8e8e;
+      font-weight:700;
+    }
+
+    /* Right panel */
+    .right{
+      padding:0;
+      overflow:hidden;
+    }
+    .bar{
+      background:var(--header);
+      border-bottom:1px solid var(--line);
+      padding:10px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .bar .title{font-size:18px;font-weight:400;}
+    .bar .hint{font-size:12px;color:var(--muted);}
+
+    .content{padding:18px 22px 22px;}
+
+    /* Shared form styles (used by all modules) */
+    .box{border:2px solid var(--outer); background:#fff; padding:26px 26px 22px;}
+    .top2{display:grid; grid-template-columns:1fr 1fr; column-gap:120px; row-gap:14px; padding:4px 6px 18px;}
+    .row{display:grid; grid-template-columns:170px 1fr; align-items:center; gap:14px; font-size:13px;}
+    .lbl{font-weight:700;color:#4a4a4a;}
+    input[type="text"], select{width:100%; height:28px; padding:4px 8px; border:1px solid var(--line); background:#fff; font-size:13px;}
+    .date{display:grid; grid-template-columns:1fr 22px; gap:8px; align-items:center;}
+    .cal{width:22px;height:22px;border:1px solid var(--line);background:#f2f2f2;display:flex;align-items:center;justify-content:center;font-size:11px;color:#555;user-select:none;}
+    .hr{margin:0 -26px; border-top:1px solid #9e9e9e;}
+    .actions{display:flex;justify-content:center;gap:16px;padding-top:18px;}
+    .btn{padding:7px 18px;border:1px solid #8e8e8e;background:#e6e6e6;cursor:pointer;font-size:13px;}
+    .btn.primary{background:var(--accent);font-weight:700;}
+
+    /* Error */
+    .error{color:var(--danger);font-size:12px;min-height:14px;margin-top:2px;}
+    .invalid{border-color:var(--danger)!important; outline:none;}
+
+    /* Tables */
+    table{width:100%; border-collapse:collapse; margin:10px 0 0; font-size:13px; background:#fff;}
+    th, td{border:1px solid var(--line); padding:8px; text-align:left; vertical-align:top;}
+    th{background:#f2f2f2;}
+    .mini-btn{padding:4px 10px;border:1px solid #8e8e8e;background:#e6e6e6;cursor:pointer;font-size:12px;margin-right:6px;}
+
+    /* CDR Request specific */
+    .radio-group{display:flex;align-items:center;gap:18px;font-size:13px;}
+    .radio-group label{display:inline-flex;align-items:center;gap:6px;color:#333;}
+    .details-head{font-size:14px;color:#3a3a3a;padding:10px 4px 0;font-weight:400;}
+    .details-grid{display:grid; grid-template-columns:1.1fr .9fr .9fr 170px; gap:26px; padding:12px 4px 10px; align-items:start;}
+    .field{display:flex;flex-direction:column;gap:6px;font-size:13px;}
+    .field label{font-weight:700;color:#4a4a4a;font-size:12.5px;}
+    .actions-col{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+    .btn-add{padding:6px 14px;border:1px solid #8e8e8e;background:var(--accent);cursor:pointer;font-size:12.5px;font-weight:700;}
+    .bottom-grid{display:grid; grid-template-columns:1fr 1fr .8fr 1fr; gap:26px; padding:12px 4px 0; align-items:end;}
+    .fileline{display:flex;align-items:center;gap:10px;}
+    input[type=file]{font-size:13px;}
+    .hint2{color:var(--muted);font-size:12px;}
+
+    /* ERC Memo specific */
+    .section{background:var(--section); margin:0 -26px; padding:14px 26px 20px;}
+    .section .title2{font-size:18px;font-weight:400;color:#3a3a3a;margin:0 0 10px;}
+    .inv-grid{display:grid; grid-template-columns:1.25fr .9fr .9fr 1fr 120px; gap:16px; align-items:end; margin-bottom:6px;}
+
+    /* Other Reports */
+    .or-title{font-size:22px;font-weight:700;text-decoration:underline;margin:0 0 14px;}
+
+    /* Editor */
+    .contentGrid{margin-top:12px; display:grid; grid-template-columns:165px 1fr; gap:14px; align-items:start;}
+    .toolbar{border:1px solid var(--line);border-bottom:none;background:#f1f1f1;padding:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;}
+    .tbtn{border:1px solid #c0c0c0;background:#fff;padding:3px 7px;cursor:pointer;font-size:12px;line-height:1;}
+    .sep{width:1px;height:18px;background:#c9c9c9;margin:0 4px;}
+    .dd{border:1px solid #c0c0c0;background:#fff;padding:3px 6px;font-size:12px;}
+    .editor{border:1px solid var(--line);min-height:175px;padding:10px;background:#fff;font-size:13px;}
+
+    /* Responsive */
+    @media (max-width: 1100px){
+      .app{grid-template-columns:1fr;}
+      .top2{grid-template-columns:1fr; column-gap:0;}
+      .details-grid{grid-template-columns:1fr;}
+      .bottom-grid{grid-template-columns:1fr;}
+      .inv-grid{grid-template-columns:1fr;}
+      .contentGrid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- LEFT: Module list -->
+    <div class="card left">
+      <h2>Module</h2>
+      <div class="nav" role="navigation" aria-label="Modules">
+        <button type="button" class="active" data-module="cdr">CDR Request</button>
+        <button type="button" data-module="uo">UO</button>
+        <button type="button" data-module="erc">ERC Memo</button>
+        <button type="button" data-module="other">Other Reports</button>
+      </div>
+      <div style="margin-top:14px;color:var(--muted);font-size:12px;line-height:1.4;">
+        Select a module from the left panel. The form will open on the right.
+      </div>
+    </div>
+
+    <!-- RIGHT: Dynamic form container -->
+    <div class="card right">
+      <div class="bar">
+        <div class="title" id="pageTitle">CDR Request</div>
+        <div class="hint">Single page • module based forms</div>
+      </div>
+      <div class="content">
+        <div id="moduleHost"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TEMPLATES ===================== -->
+
+  <!-- CDR Request template (with validation + add row) -->
+  <template id="tpl-cdr">
+    <div class="box">
+      <form id="cdrForm" novalidate>
+        <div class="top2">
+          <div>
+            <div class="row">
+              <div class="lbl">Request Type</div>
+              <div class="radio-group">
+                <label><input type="radio" name="requestType" value="CDR" checked> CDR</label>
+                <label><input type="radio" name="requestType" value="IPDR"> IPDR</label>
+              </div>
+            </div>
+            <div class="row" style="margin-top:12px;">
+              <div class="lbl">Officer Name</div>
+              <input type="text" name="officerName" />
+            </div>
+          </div>
+
+          <div>
+            <div class="row">
+              <div class="lbl">File Number</div>
+              <input type="text" name="fileNumber" />
+            </div>
+            <div class="row" style="margin-top:12px;">
+              <div class="lbl">Date</div>
+              <div class="date">
+                <input type="text" name="date" placeholder="dd/mm/yyyy" />
+                <div class="cal">▾</div>
+              </div>
+            </div>
+            <div class="row" style="margin-top:12px;">
+              <div class="lbl">Officer Designation</div>
+              <select name="designation">
+                <option value="">--Select Designation--</option>
+                <option>JD</option><option>ADD</option><option>JDD</option><option>AD</option>
+                <option>DCIO</option><option>ACIO-I</option><option>ACIO-II</option>
+                <option>JIO-I</option><option>JIO-II</option><option>SA</option><option>RO</option>
+                <option>RA</option><option>ASO</option><option>SO</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="details-head">Details</div>
+
+        <div class="details-grid">
+          <div class="field">
+            <label>Mobile No</label>
+            <input type="text" name="mobile" placeholder="10 digit mobile" />
+            <div class="error" data-err="mobile"></div>
+          </div>
+          <div class="field">
+            <label>Start Date</label>
+            <div class="date">
+              <input type="text" name="startDate" placeholder="dd/mm/yyyy" />
+              <div class="cal">▾</div>
+            </div>
+            <div class="error" data-err="start"></div>
+          </div>
+          <div class="field">
+            <label>End Date</label>
+            <div class="date">
+              <input type="text" name="endDate" placeholder="dd/mm/yyyy" />
+              <div class="cal">▾</div>
+            </div>
+            <div class="error" data-err="end"></div>
+          </div>
+          <div class="actions-col">
+            <div class="lbl">Actions</div>
+            <button type="button" class="btn-add" data-act="add-detail">ADD ROW</button>
+          </div>
+        </div>
+
+        <table aria-label="Details rows">
+          <thead>
+            <tr>
+              <th>Mobile No</th><th>Start Date</th><th>End Date</th><th style="width:140px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody data-role="detailsBody"></tbody>
+        </table>
+
+        <div class="bottom-grid">
+          <div class="field">
+            <label>CDR Request Files</label>
+            <div class="fileline">
+              <input type="file" name="cdrRequestFiles" />
+              <span class="hint2">docx</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>RAW CDR Files</label>
+            <div class="fileline">
+              <input type="file" name="rawCdrFiles" />
+              <span class="hint2">Excel</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Date of Receiving</label>
+            <div class="date">
+              <input type="text" name="dateOfReceiving" placeholder="dd/mm/yyyy" />
+              <div class="cal">▾</div>
+            </div>
+          </div>
+          <div></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" type="submit">Submit</button>
+          <button class="btn" type="reset">Reset</button>
+        </div>
+      </form>
+    </div>
+  </template>
+
+  <!-- ERC Memo template (add row + validation + table + editor) -->
+  <template id="tpl-erc">
+    <div>
+      <div style="font-size:26px;font-weight:700;text-decoration:underline;margin:0 0 16px;">ERC Memo</div>
+      <div class="box">
+        <form id="ercForm" novalidate>
+          <div class="top2">
+            <div>
+              <div class="row"><div class="lbl">File Number</div><input type="text" name="fileNumber" /></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Source of Query</div><input type="text" name="sourceOfQuery" /></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Date of Reply</div><div class="date"><input type="text" name="dateOfReply" placeholder="dd/mm/yyyy" /><div class="cal">▾</div></div></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Sector</div><select name="sector"><option value="">Sector</option></select></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Files</div><div class="fileline"><input type="file" name="files" /></div></div>
+            </div>
+            <div>
+              <div class="row"><div class="lbl">Company Name</div><input type="text" name="companyName" /></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Date of Receipt</div><div class="date"><input type="text" name="dateOfReceipt" placeholder="dd/mm/yyyy" /><div class="cal">▾</div></div></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Issue</div><input type="text" name="issue" /></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Adverse</div><select name="adverse"><option value="">Adverse</option><option>Yes</option><option>No</option></select></div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="section">
+            <div class="title2">Invester Company</div>
+
+            <div class="inv-grid">
+              <div class="field">
+                <label>Name</label>
+                <input type="text" data-inv="name" />
+                <div class="error" data-err="invName"></div>
+              </div>
+              <div class="field">
+                <label>Country</label>
+                <input type="text" data-inv="country" />
+                <div class="error" data-err="invCountry"></div>
+              </div>
+              <div class="field"><label>Ownership</label><input type="text" data-inv="ownership" /></div>
+              <div class="field"><label>Shareholding</label><input type="text" data-inv="shareholding" /></div>
+              <button type="button" class="btn-add" data-act="add-investor">ADD ROW</button>
+            </div>
+
+            <table aria-label="Investor rows">
+              <thead>
+                <tr>
+                  <th>Name</th><th>Country</th><th>Ownership</th><th>Shareholding</th><th style="width:140px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody data-role="investorBody"></tbody>
+            </table>
+
+            <div class="contentGrid">
+              <div class="lbl" style="padding-top:6px;">Content</div>
+              <div>
+                <div class="toolbar">
+                  <button class="tbtn" type="button" data-cmd="cut">✂</button>
+                  <button class="tbtn" type="button" data-cmd="copy">⎘</button>
+                  <button class="tbtn" type="button" data-cmd="paste">⎀</button>
+                  <span class="sep"></span>
+                  <button class="tbtn" type="button" data-cmd="bold"><b>B</b></button>
+                  <button class="tbtn" type="button" data-cmd="italic"><i>I</i></button>
+                  <button class="tbtn" type="button" data-cmd="underline"><u>U</u></button>
+                  <button class="tbtn" type="button" data-cmd="strikeThrough"><s>S</s></button>
+                  <span class="sep"></span>
+                  <button class="tbtn" type="button" data-cmd="insertUnorderedList">•</button>
+                  <button class="tbtn" type="button" data-cmd="insertOrderedList">1.</button>
+                  <span class="sep"></span>
+                  <select class="dd" data-dd="formatBlock"><option value="">Styles</option><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="p">Paragraph</option></select>
+                  <select class="dd" data-dd="fontName"><option value="">Format</option><option value="Arial">Arial</option><option value="Times New Roman">Times New Roman</option><option value="Courier New">Courier New</option></select>
+                  <span class="sep"></span>
+                  <button class="tbtn" type="button" data-act="toggle-source">Source</button>
+                </div>
+                <div class="editor" contenteditable="true" data-role="editor"></div>
+                <textarea class="editor" style="display:none;font-family:monospace;" data-role="source"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" type="submit">Submit</button>
+            <button class="btn" type="reset">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </template>
+
+  <!-- Other Reports template (simple format + editor + pdf/audio upload) -->
+  <template id="tpl-other">
+    <div>
+      <div class="or-title">Other Reports</div>
+      <div class="box">
+        <form id="otherForm" novalidate>
+          <div class="top2">
+            <div>
+              <div class="row"><div class="lbl">File Number</div><input type="text" name="fileNumber" /></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Category</div><select name="category"><option value="">Select Category</option></select></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Unit</div><select name="unit"><option value="">Select Group</option></select></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Files</div><div class="fileline"><input type="file" name="pdfTextFile" /><span class="hint2">PDF / Text Format</span></div></div>
+            </div>
+            <div>
+              <div class="row"><div class="lbl">Name Of Operation</div><input type="text" name="operationName" /></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Date</div><div class="date"><input type="text" name="date" placeholder="dd/mm/yyyy" /><div class="cal">▾</div></div></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Prepared By</div><input type="text" name="preparedBy" /></div>
+              <div class="row" style="margin-top:12px;"><div class="lbl">Files</div><div class="fileline"><input type="file" name="audioFile" /><span class="hint2">Audio Format</span></div></div>
+            </div>
+          </div>
+
+          <div class="contentGrid">
+            <div class="lbl" style="padding-top:6px;">Content</div>
+            <div>
+              <div class="toolbar">
+                <button class="tbtn" type="button" data-cmd="bold"><b>B</b></button>
+                <button class="tbtn" type="button" data-cmd="italic"><i>I</i></button>
+                <button class="tbtn" type="button" data-cmd="underline"><u>U</u></button>
+                <span class="sep"></span>
+                <button class="tbtn" type="button" data-cmd="insertUnorderedList">•</button>
+                <button class="tbtn" type="button" data-cmd="insertOrderedList">1.</button>
+                <span class="sep"></span>
+                <button class="tbtn" type="button" data-act="toggle-source">Source</button>
+              </div>
+              <div class="editor" contenteditable="true" data-role="editor"></div>
+              <textarea class="editor" style="display:none;font-family:monospace;" data-role="source"></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" type="submit">Submit</button>
+            <button class="btn" type="reset">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </template>
+
+  <!-- UO placeholder (replace with your real UO form later) -->
+  <template id="tpl-uo">
+    <div class="box">
+      <div style="font-size:22px;font-weight:700;text-decoration:underline;margin:0 0 14px;">UO</div>
+      <div style="color:var(--muted);font-size:13px;line-height:1.6;">
+        UO module form not added yet. Send the UO form screenshot/fields and I will integrate it here.
+      </div>
+    </div>
+  </template>
+
+  <!-- ===================== SCRIPT ===================== -->
+  <script>
+    const host = document.getElementById('moduleHost');
+    const titleEl = document.getElementById('pageTitle');
+
+    const TPL = {
+      cdr: document.getElementById('tpl-cdr'),
+      uo: document.getElementById('tpl-uo'),
+      erc: document.getElementById('tpl-erc'),
+      other: document.getElementById('tpl-other'),
+    };
+
+    function $(root, sel){ return root.querySelector(sel); }
+
+    function escapeHtml(str){
+      return (str || '').replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c] || c));
+    }
+
+    function parseDMY(str){
+      const s = (str || '').trim();
+      const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s);
+      if (!m) return null;
+      const dd = Number(m[1]), mm = Number(m[2]), yyyy = Number(m[3]);
+      if (mm < 1 || mm > 12) return null;
+      const d = new Date(yyyy, mm - 1, dd);
+      if (d.getFullYear() !== yyyy || d.getMonth() !== (mm - 1) || d.getDate() !== dd) return null;
+      return d;
+    }
+
+    function setError(inputEl, errEl, msg){
+      if (!errEl) return;
+      errEl.textContent = msg || '';
+      if (msg) inputEl.classList.add('invalid');
+      else inputEl.classList.remove('invalid');
+    }
+
+    function wireEditor(container){
+      const editor = container.querySelector('[data-role="editor"]');
+      const source = container.querySelector('[data-role="source"]');
+      if (!editor || !source) return;
+
+      const isSource = () => source.style.display !== 'none';
+
+      container.querySelectorAll('[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (isSource()) return;
+          const cmd = btn.getAttribute('data-cmd');
+          try { document.execCommand(cmd, false, null); } catch(e) {}
+          editor.focus();
+        });
+      });
+
+      container.querySelectorAll('[data-dd]').forEach(dd => {
+        dd.addEventListener('change', () => {
+          if (isSource()) return;
+          const cmd = dd.getAttribute('data-dd');
+          const val = dd.value;
+          if (!val) return;
+          try { document.execCommand(cmd, false, val); } catch(e) {}
+          dd.value = '';
+          editor.focus();
+        });
+      });
+
+      container.querySelectorAll('[data-act="toggle-source"]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!isSource()){
+            source.value = editor.innerHTML;
+            editor.style.display = 'none';
+            source.style.display = 'block';
+          } else {
+            editor.innerHTML = source.value;
+            source.style.display = 'none';
+            editor.style.display = 'block';
+          }
+        });
+      });
+    }
+
+    function wireCDR(container){
+      const form = $('container', '#cdrForm');
+      if (!form) return;
+
+      const mobileEl = $(container, '[name="mobile"]');
+      const sdEl = $(container, '[name="startDate"]');
+      const edEl = $(container, '[name="endDate"]');
+      const errMobile = $(container, '[data-err="mobile"]');
+      const errStart = $(container, '[data-err="start"]');
+      const errEnd = $(container, '[data-err="end"]');
+      const body = $(container, '[data-role="detailsBody"]');
+      const addBtn = $(container, '[data-act="add-detail"]');
+
+      function validateRow(){
+        let ok = true;
+        const mobile = mobileEl.value.trim();
+        if (!mobile) { setError(mobileEl, errMobile, 'Mobile number is required'); ok = false; }
+        else if (!/^\d{10}$/.test(mobile)) { setError(mobileEl, errMobile, 'Enter valid 10 digit mobile'); ok = false; }
+        else setError(mobileEl, errMobile, '');
+
+        const sdStr = sdEl.value.trim();
+        const edStr = edEl.value.trim();
+        const sd = parseDMY(sdStr);
+        const ed = parseDMY(edStr);
+
+        if (!sdStr) { setError(sdEl, errStart, 'Start Date is required'); ok = false; }
+        else if (!sd) { setError(sdEl, errStart, 'Use dd/mm/yyyy'); ok = false; }
+        else setError(sdEl, errStart, '');
+
+        if (!edStr) { setError(edEl, errEnd, 'End Date is required'); ok = false; }
+        else if (!ed) { setError(edEl, errEnd, 'Use dd/mm/yyyy'); ok = false; }
+        else setError(edEl, errEnd, '');
+
+        if (sd && ed && ed < sd) { setError(edEl, errEnd, 'End Date must be same or after Start Date'); ok = false; }
+
+        return { ok, mobile, sdStr, edStr };
+      }
+
+      [mobileEl, sdEl, edEl].forEach(el => {
+        el.addEventListener('input', () => {
+          if (el === mobileEl) setError(mobileEl, errMobile, '');
+          if (el === sdEl) setError(sdEl, errStart, '');
+          if (el === edEl) setError(edEl, errEnd, '');
+        });
+      });
+
+      addBtn.addEventListener('click', () => {
+        const v = validateRow();
+        if (!v.ok) return;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(v.mobile)}</td>
+          <td>${escapeHtml(v.sdStr)}</td>
+          <td>${escapeHtml(v.edStr)}</td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="mini-btn" data-act="edit">Edit</button>
+            <button type="button" class="mini-btn" data-act="del">Delete</button>
+          </td>
+        `;
+        body.appendChild(tr);
+
+        mobileEl.value = '';
+        sdEl.value = '';
+        edEl.value = '';
+      });
+
+      body.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const tr = btn.closest('tr');
+        const act = btn.getAttribute('data-act');
+        if (act === 'del') tr.remove();
+        if (act === 'edit') {
+          const tds = tr.querySelectorAll('td');
+          mobileEl.value = tds[0].textContent.trim();
+          sdEl.value = tds[1].textContent.trim();
+          edEl.value = tds[2].textContent.trim();
+          tr.remove();
+          mobileEl.focus();
+        }
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (body.querySelectorAll('tr').length === 0) {
+          alert('Please add at least one Details row using ADD ROW.');
+          return;
+        }
+        alert('Submitted (demo). Connect this to backend/API.');
+      });
+
+      form.addEventListener('reset', () => {
+        setTimeout(() => {
+          body.innerHTML = '';
+          setError(mobileEl, errMobile, '');
+          setError(sdEl, errStart, '');
+          setError(edEl, errEnd, '');
+        }, 0);
+      });
+    }
+
+    function wireERC(container){
+      const form = $(container, '#ercForm');
+      const invName = $(container, '[data-inv="name"]');
+      const invCountry = $(container, '[data-inv="country"]');
+      const invOwnership = $(container, '[data-inv="ownership"]');
+      const invShare = $(container, '[data-inv="shareholding"]');
+      const errName = $(container, '[data-err="invName"]');
+      const errCountry = $(container, '[data-err="invCountry"]');
+      const addBtn = $(container, '[data-act="add-investor"]');
+      const body = $(container, '[data-role="investorBody"]');
+
+      function validateInvestor(){
+        let ok = true;
+        const n = invName.value.trim();
+        const c = invCountry.value.trim();
+        if (!n){ setError(invName, errName, 'Name is required'); ok = false; } else setError(invName, errName, '');
+        if (!c){ setError(invCountry, errCountry, 'Country is required'); ok = false; } else setError(invCountry, errCountry, '');
+        return ok;
+      }
+
+      invName.addEventListener('input', () => setError(invName, errName, ''));
+      invCountry.addEventListener('input', () => setError(invCountry, errCountry, ''));
+
+      addBtn.addEventListener('click', () => {
+        if (!validateInvestor()) return;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(invName.value.trim())}</td>
+          <td>${escapeHtml(invCountry.value.trim())}</td>
+          <td>${escapeHtml(invOwnership.value.trim())}</td>
+          <td>${escapeHtml(invShare.value.trim())}</td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="mini-btn" data-act="edit">Edit</button>
+            <button type="button" class="mini-btn" data-act="del">Delete</button>
+          </td>
+        `;
+        body.appendChild(tr);
+        invName.value = ''; invCountry.value=''; invOwnership.value=''; invShare.value='';
+      });
+
+      body.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const tr = btn.closest('tr');
+        const act = btn.getAttribute('data-act');
+        if (act === 'del') tr.remove();
+        if (act === 'edit'){
+          const tds = tr.querySelectorAll('td');
+          invName.value = tds[0].textContent.trim();
+          invCountry.value = tds[1].textContent.trim();
+          invOwnership.value = tds[2].textContent.trim();
+          invShare.value = tds[3].textContent.trim();
+          tr.remove();
+          invName.focus();
+        }
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (body.querySelectorAll('tr').length === 0){
+          alert('Please add at least one Invester Company row using ADD ROW.');
+          return;
+        }
+        alert('Submitted (demo). Connect this to backend/API.');
+      });
+
+      form.addEventListener('reset', () => {
+        setTimeout(() => {
+          body.innerHTML = '';
+          setError(invName, errName, '');
+          setError(invCountry, errCountry, '');
+        }, 0);
+      });
+
+      wireEditor(container);
+    }
+
+    function wireOther(container){
+      const form = $(container, '#otherForm');
+      wireEditor(container);
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Submitted (demo). Connect this to backend/API.');
+      });
+    }
+
+    function mount(module){
+      host.innerHTML = '';
+      const node = TPL[module].content.cloneNode(true);
+      host.appendChild(node);
+
+      // set title
+      const titles = { cdr: 'CDR Request', uo: 'UO', erc: 'ERC Memo', other: 'Other Reports' };
+      titleEl.textContent = titles[module] || 'Module';
+
+      // wire behavior
+      const mounted = host;
+      if (module === 'cdr') wireCDR(mounted);
+      if (module === 'erc') wireERC(mounted);
+      if (module === 'other') wireOther(mounted);
+      if (module === 'uo') {/* nothing */}
+
+      // Also wire editors for modules that have it
+      if (module === 'erc' || module === 'other') wireEditor(mounted);
+    }
+
+    // nav behavior
+    document.querySelectorAll('.nav button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        mount(btn.getAttribute('data-module'));
+      });
+    });
+
+    // initial
+    mount('cdr');
+  </script>
+</body>
+</html>

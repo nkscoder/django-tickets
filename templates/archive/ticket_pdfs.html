@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container mt-3">
+  <div class="card">
+    <div class="card-body">
+      <h5 class="mb-2">Ticket PDFs</h5>
+
+      <p class="mb-1"><b>Ticket:</b> {{ ticket.id }}</p>
+      <p class="mb-1"><b>Target User:</b> {{ target_user.first_name|default:target_user.last_name }}</p>
+      <p class="mb-1"><b>NGO:</b> {{ org_name }}</p>
+      <p class="mb-3"><b>Address:</b> {{ org_address }}</p>
+
+      <hr/>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-primary"
+            href="{% url 'tickets:pdf_rci_slip' ticket.id %}">
+            RCI Slip
+          </a>
+
+          <a class="btn btn-outline-primary"
+            href="{% url 'tickets:pdf_mha_reply' ticket.id %}">
+            MHA Reply
+          </a>
+
+          <a class="btn btn-outline-primary"
+            href="{% url 'tickets:pdf_letter_to_sib' ticket.id %}">
+            Letter to SIB
+          </a>
+
+          <a class="btn btn-outline-success"
+            href="{% url 'tickets:ticket_assignee_questions_pdf_with_answer' ticket.id %}">
+            Replied from SIB
+          </a>
+      </div>
+
+      {% if is_creator %}
+        <div class="alert alert-info mt-3">
+          Tip: As creator, you can generate PDFs for a specific assignee using:
+          <code>?user_id=&lt;ID&gt;</code>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

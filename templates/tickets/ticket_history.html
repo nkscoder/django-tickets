@@ -1,0 +1,66 @@
+{% extends TICKETS_BASE_TEMPLATE %}
+{% load static %}
+{% block content %}
+<div class="card main-card my_card mb-4 mt-4 rounded-3">
+  <div class="card-header">
+    <div class="row align-items-center">
+      <div class="col-md-12">
+        <h3 class="mb-1 mt-1 text-center">Ticket history</h3>
+        <p class="my_ngo mb-1 mt-1 text-center my_span_color">
+          Track every change from creation to closure
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body bg-body-tertiary border-top" style="padding: 0px 74px;">
+    <div class="container">
+      {% if history %}
+      <div class="row">
+        <div class="col">
+          <div class="timeline_history">
+
+            {% for entry in history %}
+            <div class="timeline__event animated fadeInUp delay-{{ forloop.revcounter }}s 
+                        {% cycle 'timeline__event--type1' 'timeline__event--type2' 'timeline__event--type3' %}">
+
+              <div class="timeline__event__icon">
+                {{ entry.new_status|title }}
+              </div>
+
+              <div class="timeline__event__date">
+                {{ entry.created_at|date:"M d, Y h:i A" }}
+              </div>
+
+              <div class="timeline__event__content">
+                <div class="timeline__event__title">
+                  <span class="userimage">
+                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
+                  </span>
+                  {{ entry.changed_by.first_name }} {{ entry.changed_by.last_name }} <br>
+                  <span>({{ entry.changed_by.phone_mobile|default:"-" }})</span>
+                </div>
+
+                <div class="timeline__event__description">
+                  <h6 style="color: #000;">
+                    Previous:
+                    <span style="color: #0000008a;">
+                      {{ entry.old_status|default:"N/A" }}
+                    </span>
+                  </h6>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="text-center text-muted mt-5">No history available yet.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

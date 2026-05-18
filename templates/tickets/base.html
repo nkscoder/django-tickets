@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{% block title %}Tickets{% endblock %}</title>
+
+  {# Core vendor CSS - ticket module only #}
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/fontawesome/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/datatables/dataTables.bootstrap5.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/select2/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/sweetalert2/sweetalert2.min.css' %}">
+
+  {# Ticket module CSS (put your styles here) #}
+  <link rel="stylesheet" href="{% static 'ticket/css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'ticket/css/my_style.css' %}">
+
+  {# Page-specific styles #}
+  {% block style_head %}{% endblock %}
+
+  <style>
+    /* Scope everything so tickets CSS doesn't affect the rest of the site */
+    .tickets-ui {
+      --tickets-bg: #f0f2f7;
+      --tickets-card-radius: 1rem;
+    }
+    .tickets-ui body,
+    .tickets-ui .tickets-body {
+      background: var(--tickets-bg);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .tickets-ui .main-card {
+      border-radius: var(--tickets-card-radius);
+      box-shadow: 0 8px 25px rgba(0,0,0,.08);
+      background: #fff;
+    }
+    /* Toast container */
+    .tickets-ui .toast { border-radius:.75rem; box-shadow:0 6px 18px rgba(0,0,0,.15); }
+    /* Header */
+    .tickets-ui .tickets-header {
+      background:#0d6efd; color:#fff;
+    }
+    .tickets-ui .tickets-header .nav-link,
+    .tickets-ui .tickets-header a { color:#fff; }
+    .tickets-ui .tickets-header .nav-link.active { font-weight:600; text-decoration: underline; }
+    /* Footer */
+    .tickets-ui .tickets-footer { color:#6c757d; }
+  </style>
+</head>
+
+<body class="h-100">
+<div class="tickets-ui d-flex flex-column h-100">
+
+  {# Header only for the ticket module #}
+  <header class="tickets-header py-2">
+    <div class="container d-flex align-items-center">
+      <a class="navbar-brand d-flex align-items-center me-3" href="{% url 'tickets:dashboard' %}">
+        <img src="{% static 'ticket/img/ib_logo.svg' %}" alt="Logo" height="32" class="me-2">
+        <span class="fw-semibold">Ticketing</span>
+      </a>
+      <ul class="nav">
+        <li class="nav-item"><a class="nav-link {% block nav_home_active %}{% endblock %}" href="{% url 'tickets:dashboard' %}">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link {% block nav_list_active %}{% endblock %}" href="{% url 'tickets:ticket_list' %}">Tickets</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'tickets:create_ticket' %}">Create</a></li>
+      </ul>
+      <div class="ms-auto d-flex align-items-center gap-3">
+        {% if request.user.is_authenticated %}
+          <span class="small">Hi, {{ request.user.get_full_name|default:request.user.first_name }}</span>
+          <a class="btn btn-sm btn-outline-light" href="{% url 'logout' %}">Logout</a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  {# Toast messages #}
+  {% if messages %}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index:1080;">
+      {% for message in messages %}
+        <div class="toast align-items-center text-white bg-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} show mb-2">
+          <div class="d-flex">
+            <div class="toast-body">
+              {% if message.tags == 'success' %}✅{% elif message.tags == 'error' %}❌{% elif message.tags == 'warning' %}⚠️{% elif message.tags == 'info' %}ℹ️{% endif %}
+              {{ message }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# Content #}
+  <main class="tickets-body flex-grow-1 py-4">
+    <div class="container">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  {# Footer only for ticket module #}
+  <footer class="tickets-footer py-3 border-top bg-white">
+    <div class="container d-sm-flex justify-content-center">
+      <span class="text-muted">© {% now "Y" %} &nbsp; <a href="https://nkscoder.in" target="_blank" rel="noopener">nkscoder.in</a></span>
+    </div>
+  </footer>
+</div>
+
+{# Core vendor JS - ticket module only #}
+<script src="{% static 'vendor/jquery/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'vendor/datatables/dataTables.bootstrap5.min.js' %}"></script>
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<script src="{% static 'vendor/sweetalert2/sweetalert2.all.min.js' %}"></script>
+<script src="{% static 'vendor/fontawesome/js/all.min.js' %}"></script>
+
+{# Page scripts #}
+{% block extra_js %}{% endblock %}
+</body>
+</html>

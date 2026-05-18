@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block sub_header %}
+    {% include 'sub_header.html' %}
+{% endblock %}
+
+{% block content %}
+<style>
+        body {
+          background-color: #f7f8fa;
+        }
+        .ticket-form-container {
+          max-width: 550px;
+          margin: 40px auto;
+          padding: 30px 30px 20px 30px;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 3px 24px rgba(0,0,0,0.10);
+        }
+        #moduleResults {
+          background: #f8f9fa;
+          border: 1px solid #dee2e6;
+          border-radius: .25rem;
+          margin-top: 5px;
+          padding: 6px 10px;
+          max-height: 140px;
+          overflow-y: auto;
+          font-size: 0.96rem;
+          color: #6c757d;
+        }
+    </style>
+
+<div class="ticket-form-container shadow">
+        <h2 class="mb-4">Create Ticket</h2>
+        <form id="ticketForm">
+            <div class="mb-3">
+                <label for="module" class="form-label">Module</label>
+                <select id="module" name="module" class="form-select" required>
+                    <option value="">Select Module</option>
+                    <option value="STR">STR</option>
+                    <option value="NGO">NGO</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="moduleData" class="form-label">Search Data</label>
+                <input type="text" id="moduleData" class="form-control" placeholder="Type to search..." autocomplete="off" required>
+                <div id="moduleResults" class="mt-1"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="department" class="form-label">Department</label>
+                <select id="department" name="department" class="form-select" required>
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="user" class="form-label">User</label>
+                <select id="user" name="user" class="form-select" required>
+                    <option value="">Select User</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" name="description" class="form-control" rows="3" placeholder="Describe your ticket..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Create Ticket</button>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Bootstrap 5 JS Bundle (optional, for dropdowns and other features) -->
+    <script type="text/javascript" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+      // Replace with your real API endpoints
+      const MODULE_API = {
+        STR: "your/str/api/search",
+        NGO: "your/ngo/api/search"
+      };
+      const DEPARTMENT_API = "your/department/api/list";
+      const USER_API = "your/user/api/by-department";
+
+      // Populate departments on load
+      window.onload = async function() {
+        try {
+          const resp = await fetch(DEPARTMENT_API);
+          const departments = await resp.json();
+          const depSelect = document.getElementById('department');
+          departments.forEach(dep => {
+            let o = document.createElement('option');
+            o.value = dep.id;
+            o.textContent = dep.name;
+            depSelect.appendChild(o);
+          });
+        } catch (err) {
+          // handle error gracefully (production code should show an alert or message)
+        }
+      };
+
+      // Module search keyup
+      document.getElementById('moduleData').addEventListener('keyup', async function(e) {
+        const query = e.target.value.trim();
+        const module = document.getElementById('module').value;
+        const resultsDiv = document.getElementById('moduleResults');
+        resultsDiv.innerHTML = '';
+        if (query.length < 2 || !module) return;
+
+        resultsDiv.innerHTML = '<span class="text-secondary">Searching...</span>';
+        try {
+          const resp = await fetch(`${MODULE_API[module]}?query=${encodeURIComponent(query)}`);
+          const data = await resp.json();
+          // Customize display logic here - adjust for your data shape
+          if (Array.isArray(data) && data.length > 0) {
+            resultsDiv.innerHTML = data.map(item => `<div>${item.name || JSON.stringify(item)}</div>`).join('');
+          } else {
+            resultsDiv.innerHTML = '<span class="text-muted">No results.</span>';
+          }
+        } catch {
+          resultsDiv.innerHTML = '<span class="text-danger">Error fetching data.</span>';
+        }
+      });
+
+      // Reset search field/results when module changes
+      document.getElementById('module').addEventListener('change', function() {
+        document.getElementById('moduleData').value = '';
+        document.getElementById('moduleResults').innerHTML = '';
+      });
+
+      // Populate users on department select
+      document.getElementById('department').addEventListener('change', async function(e) {
+        const depId = e.target.value;
+        const userSelect = document.getElementById('user');
+        userSelect.innerHTML = '<option value="">Select User</option>';
+        if (!depId) return;
+        try {
+          const resp = await fetch(`${USER_API}?departmentId=${depId}`);
+          const users = await resp.json();
+          users.forEach(user => {
+            let o = document.createElement('option');
+            o.value = user.id;
+            o.textContent = user.name;
+            userSelect.appendChild(o);
+          });
+        } catch {
+          // Optionally show error
+        }
+      });
+
+      // Handle form submission (replace with real API call)
+      document.getElementById('ticketForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Collect values and process ticket creation (example: POST to API)
+        alert("Ticket created! (Integrate real API here.)");
+        // Optionally reset form and moduleResults
+      });
+    </script>
+{% endblock %}
+

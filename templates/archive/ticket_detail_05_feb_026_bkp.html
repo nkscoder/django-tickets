@@ -1,0 +1,2113 @@
+{% extends 'base.html' %}
+{% load tz %}
+{% load static %}
+
+{% block style_head %}
+  {# Core styles you already had #}
+  <link rel="stylesheet" href="{% static 'ticket/css/all.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/my_style.css' %}">
+{% endblock %}
+
+{% block extra_head %}
+  {# Page-specific vendor styles #}
+  <link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+  {# DataTables Bootstrap 5 skin (match your new HTML look) #}
+  <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap5.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/select2.min.css' %}">
+{% load static %}
+{% load static %}
+<style>
+  /* Align the attachment row nicely without changing layout look */
+  .send-btns{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.5rem .75rem;background:#e9ecef;border-radius:.375rem;}
+  .send-btns .attach .button-wrapper{display:flex;align-items:center;gap:.5rem;margin:0;}
+  .send-btns .attach .label{margin:0;font-weight:600;color:#6c757d;}
+  .upload-box{width:auto;max-width:100%;}
+  @media (max-width:576px){.send-btns{flex-direction:column;align-items:stretch;}}
+.feedback-thread
+{
+  max-height: 360px;           /* slightly smaller if you want more white space under it */
+}
+
+.feedback-thread .msg-body {
+  padding: 0.5rem 0.75rem;
+}
+
+.feedback-thread .send-box {
+  padding: 0.5rem 0.75rem;
+}
+
+.feedback-thread .send-box .btn 
+{
+  min-width: 110px;
+}
+
+</style>
+
+<section class="d-flex align-items-center justify-content-center">
+  <div class="container">
+    <div class="card main-card my_card mb-4 mt-5 rounded-3">
+      
+      <div class="card-body bg-body-tertiary border-top">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <!--==================================================-->
+              <div class="case-study-area mt-4">
+                <div class="row">
+                  <div class="col-lg-12 col-sm-12">
+                    <div class="case_study_nav">
+                      <div class="case_study_menu">
+                        <ul class="menu-filtering">
+                          <li data-filter=".ticket" class="current_menu_item">NGO Details</li>
+                          <li data-filter=".q_and_a">Enquiry Reply</li>
+                          <li data-filter=".feedback_summary">Suppliment Reply</li>
+                          <li data-filter=".change_log">Past Enquiry</li>
+                          <li data-filter=".status_history">Status History</li>
+                          {% if can_view_all_tabs %}
+                            <li data-filter=".downloads">Downloads</li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row image_load">
+                  <!-- TICKET TAB -->
+                  <div class="col-md-12 grid-item ticket mt-3">
+                    
+                    <ul class="timeline_ticket">
+                      <li>
+                        <!-- begin timeline-body -->
+                        <div class="timeline-body">
+                          <div class="timeline-header">
+                            <!-- <span class="userimage">
+                              <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
+                            </span> -->
+                            <span class="username my_span_color">{{ ticket.models_object|default:"N/A" }}  </span>
+                            <span class="pull-right text-muted">
+                              <span class="my_span_color">Created At : </span>
+                              {{ ticket.created_at|date:"d-m-Y " }}
+                            </span>
+                          </div>
+
+                          <div class="timeline-content">
+                            <h4 class="template-title my_span_color"> SIB Query for NGO</h4>
+
+                            <!-- <p>
+                              <span class="my_span_color"><b> Description :</b></span><br>
+                              <span>{{ ticket.description }}</span>
+                            </p>
+
+                            <p>
+                              <span class="my_span_color"><b> Module Type :</b></span><br>
+                              <span>{{ ticket.models_name }}</span>
+                            </p>
+                            <p>
+                              <span class="my_span_color"><b> File No. :</b></span><br>
+                              <span>{{ ticket.file_no }}</span>
+                            </p>
+
+                            <p>
+                              <span class="my_span_color"><b> Module Data :</b></span><br>
+                              <span>{{ ticket.models_object|default:"N/A" }}</span>
+                            </p> -->
+                            
+                            <style>
+                              .fcra-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                /* background: #e6f7ff; */
+                              }
+
+                              .fcra-table td {
+                                border: 1px solid #ddd;
+                                padding: 6px 10px;
+                                vertical-align: top;
+                              }
+
+                              .fcra-table td:first-child {
+                                font-weight: 600;
+                                width: 40%;
+                              }
+                            </style>
+
+                            <div class="row">
+                              <!-- LEFT COLUMN -->
+                              <div class="col-md-6">
+                                <table class="fcra-table">
+                                  <tr>
+                                    <td>PAN No.</td>
+                                    <td>{{ osdl.pan_number|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>FCRA No.</td>
+                                    <td>{{ osdl.rcn|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Email</td>
+                                    <td>{{ osdl.email_id|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>State</td>
+                                    <td>{{ osdl.association_state|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Section file number</td>
+                                    <td>{{ osdl.section_file_number|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Darpan application id</td>
+                                    <td>{{ osdl.darpan_id|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Registration Date</td>
+                                    <td>{{ osdl.registration_date|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Association Nature</td>
+                                    <td>{{ osdl.nature_of_association|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Address</td>
+                                    <td>{{ osdl.association_address|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Association official telephone</td>
+                                    <td>{{ osdl.association_official_telephone|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>District</td>
+                                    <td>{{ osdl.association_district|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Account number</td>
+                                    <td>{{ osdl.account_number|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Association status</td>
+                                    <td>{{ osdl.association_status|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Cancel suspended date</td>
+                                    <td>{{ osdl.cancelled_suspended_date|default:"N/A" }}</td>
+                                  </tr>
+                                </table>
+                              </div>
+
+                              <!-- RIGHT COLUMN -->
+                              <div class="col-md-6">
+                                <table class="fcra-table">
+                                  <tr>
+                                    <td>Application ID</td>
+                                    <td>{{ osdl.registration_application_id|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Form submission date</td>
+                                    <td>{{ osdl.form_submission_date|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Mobile No.</td>
+                                    <td>{{ osdl.association_chief_functionary_mobile_number|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Website</td>
+                                    <td>{{ osdl.association_official_website|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>ACT Registration No.</td>
+                                    <td>{{ osdl.act_registration_number|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Name Of Act</td>
+                                    <td>{{ osdl.act_registration_name|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Association chief functionary phone number</td>
+                                    <td>{{ osdl.association_chief_functionary_phone_number|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Place of act registration</td>
+                                    <td>{{ osdl.place_of_act_registration|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Bank name</td>
+                                    <td>{{ osdl.bank_name|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Bank address</td>
+                                    <td>{{ osdl.bank_address|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Bank email</td>
+                                    <td>{{ osdl.bank_email_id|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Ifsc code</td>
+                                    <td>{{ osdl.ifsc_code|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Cancellation reason</td>
+                                    <td>{{ osdl.cancellation_reason|default:"N/A" }}</td>
+                                  </tr>
+                                  <tr>
+                                    <td>Religion</td>
+                                    <td>{{ osdl.religion|default:"N/A" }}</td>
+                                  </tr>
+                                </table>
+                              </div>
+                            </div>
+
+                            <!-- {% if ticket.created_by == request.user %}
+                              <h6 class="fw-bold mb-1" style="margin-top: 2rem;">Assigned Users</h6>
+                              {% if ticket.assigned_users.all %}
+                                <ul class="list-unstyled">
+                                  {% for u in ticket.assigned_users.all %}
+                                    <li>{{ u.first_name }} {{ u.last_name }}</li>
+                                  {% endfor %}
+                                </ul>
+                              {% else %}
+                                <p class="text-muted">No assigned users.</p>
+                              {% endif %}
+                            {% endif %} -->
+                            {% if ticket.created_by == request.user %}
+                              {% with users=ticket.assigned_users.all %}
+                                <h6 class="fw-bold mb-1" style="margin-top: 2rem;">
+                                  Assigned Users ({{ users|length }})
+                                </h6>
+
+                                {% if users %}
+                                  <ul class="list-unstyled">
+                                    {% for u in users %}
+                                      <li>{{ forloop.counter }}. {{ u.first_name }} {{ u.last_name }}</li>
+                                    {% endfor %}
+                                  </ul>
+                                {% else %}
+                                  <p class="text-muted">No assigned users.</p>
+                                {% endif %}
+                              {% endwith %}
+                            {% endif %}
+
+
+                            
+                              <div class="flex gap-2 mt-3" style="margin-left: 70rem;">
+                                {% if ticket.rcn %}
+                                  <a class="btn btn-outline-primary" href="{{ ngoRedirectURL }}">
+                                    NGO Details
+                                  </a>
+                                {% else %}
+                                  <a class="btn btn-outline-primary" href="{{ ngoRedirectURL }}">
+                                    NGO Details
+                                  </a>
+                                {% endif %}
+                              </div>
+                            
+
+                            {% if osdl_parent %}
+                              <div class="mt-3">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                  <h6 class="my_span_color mb-0">Application Documents</h6>
+                                  <span class="badge bg-secondary">{{ osdl_docs_count|default:0 }}</span>
+                                </div>
+
+                                {% if osdl_docs_count %}
+                                  <div class="list-group">
+                                    {% for d in osdl_docs %}
+                                      <div class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-0 me-auto">
+                                          <div class="fw-semibold">
+                                            <svg width="14" height="14" fill="currentColor"
+                                                 class="bi bi-paperclip me-1"
+                                                 viewBox="0 0 16 16">
+                                              <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 0 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                                            </svg>
+                                            {% if d.file %}
+                                              <a href="{{ d.file.url }}" target="_blank">
+                                                {{ d.file.name }}
+                                              </a>
+                                            {% else %}
+                                              <span class="text-muted">[no file]</span>
+                                            {% endif %}
+                                          </div>
+                                          <div class="small text-muted">
+                                            Status: {{ d.status|default:"uploaded" }}
+                                            {% if d.uploaded_by %}
+                                              &nbsp;•&nbsp;By
+                                              {{ d.uploaded_by.first_name|default:d.uploaded_by.last_name }}
+                                            {% endif %}
+                                            {% if d.uploaded_at %}
+                                              &nbsp;•&nbsp;{{ d.uploaded_at|date:"d M Y, h:i a" }}
+                                            {% endif %}
+                                          </div>
+                                        </div>
+                                        <span class="badge bg-light text-dark">#{{ d.id }}</span>
+                                      </div>
+                                    {% endfor %}
+                                  </div>
+                                {% else %}
+                                  <div class="alert alert-info py-2 px-3 mb-0">
+                                    No application documents uploaded.
+                                  </div>
+                                {% endif %}
+                              </div>
+                            {% endif %}
+
+                          </div>
+                          <!-- OFFICE BEARERS -->
+                          <div class="card mb-3">
+                            <div class="card-header">
+                              Office Bearers
+                            </div>
+                            <div class="card-body">
+                              <table class="table table-bordered table-sm mb-0">
+                                <thead>
+                                  <tr >
+                                    <th style="    color: #151414 !important;">Name</th>
+                                    <th style="    color: #151414 !important;">Father/Husband</th>
+                                    <th  style="    color: #151414 !important;">Post</th>
+                                    <th style="    color: #151414 !important;">Nationality</th>
+                                    <th style="    color: #151414 !important;">Occupation</th>
+                                    <th style="    color: #151414 !important;">Relation</th>
+                                    <th style="    color: #151414 !important;">Address</th>
+                                    <th style="    color: #151414 !important;">Mobile</th>
+                                    <th style="    color: #151414 !important;">PAN</th>
+                                    
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for m in committee_members %}
+                                    <tr>
+                                      <td>{{ m.member_name|default:"-" }}</td>
+                                      <td>{{ m.father_husband_name|default:"-" }}</td>
+                                      <td>{{ m.post_in_association|default:"-" }}</td>
+                                      <td>{{ m.nationality|default:"-" }}</td>
+                                      <td>{{ m.occupation|default:"-" }}</td>
+                                      <td>{{ m.relationship_with_other_member|default:"-" }}</td>
+                                      <td>{{ m.address|default:"-" }}</td>
+                                      <td>{{ m.mobile }}</td>
+                                      <td>{{ m.pan_no|default:"-" }}</td>
+                                      
+                                    </tr>
+                                  {% empty %}
+                                    <tr><td colspan="9">No committee members found.</td></tr>
+                                  {% endfor %}
+                                </tbody>
+                              </table>
+
+
+                            </div>
+                          </div>
+
+
+                          <!-- BANK DETAILS -->
+                          <!-- <div class="card mb-3">
+                            <div class="card-header">
+                              Bank Details
+                            </div>
+                            <div class="card-body">
+                              <table class="table table-bordered table-sm mb-0">
+                                <tr>
+                                  <th style="width:30%">Bank Name</th>
+                                  <td>{{ bank_name|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                  <th>Bank Address</th>
+                                  <td>{{ bank_address|default:"-" }}</td>
+                                </tr>
+                                <tr>
+                                  <th>Account No</th>
+                                  <td>{{ account_no|default:"-" }}</td>
+                                </tr>
+                              </table>
+                            </div>
+                          </div> -->
+                          {# =================== REPORT SUMMARY LIST =================== #}
+                          <!-- <div class="mt-4">
+                            <h5 class="my_span_color mb-3">Report Summary</h5>
+
+                            {% if report_summaries %}
+                              <ul class="list-group">
+                                {% for rs in report_summaries %}
+                                  <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                      <div>
+                                        <strong>
+                                          {{ rs.user.first_name }} {{ rs.user.last_name }}
+                                        </strong>
+                                        <small class="text-muted">
+                                          • {{ rs.created_at|date:"d-m-Y H:i" }}
+                                        </small>
+                                      </div>
+                                    </div>
+
+                                    {% if rs.summary %}
+                                      <p class="mb-1 mt-2" style="white-space: pre-wrap;"> Message :  {{ rs.summary }}</p>
+                                    {% endif %}
+                                    {% if rs.file %}
+                                      <div class="mt-1">
+                                        <span class="chat_attach">
+                                          <svg width="16" height="16" fill="currentColor"
+                                              class="bi bi-paperclip" viewBox="0 0 16 16">
+                                            <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 0 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                                          </svg>
+                                          <a href="{{ rs.file.url }}" target="_blank">
+                                            {{ rs.file.name }}
+                                          </a>
+                                        </span>
+                                      </div>
+                                    {% endif %}
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% else %}
+                              <p class="text-muted">No report summaries yet.</p>
+                            {% endif %}
+                          </div> -->
+                          <div class="timeline-footer">
+                            <div class="timeline-likes">
+                              <div class="stats">
+                                <span class="stats-text my_span_color">Created By :</span>
+                                <span>{{ userData.first_name }} {{ userData.last_name }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- Q & A TAB -->
+                  <div class="col-md-12 grid-item q_and_a mt-3">
+                    <ul class="quest_ticket">
+
+                      {# ================= REASSIGNMENT MODE ================= #}
+                      {% if reassignment and not is_creator %}
+
+                        {# 1) Reassigned user can edit until final #}
+                        {% if is_reassign_assignee and not reassignment.is_final %}
+                          <form id="reassign-form-{{ reassignment.id }}"
+                                action="{% url 'tickets:submit_reassign_form' reassignment.id %}"
+                                method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            {% for ans in answers %}
+                              <li>
+                                <div class="quest-body">
+                                  <div class="quest-header">
+                                    <h6 class="my_span_color">
+                                      Q{{ forloop.counter }}. {{ ans.question.text }}
+                                    </h6>
+                                  </div>
+                                  <div class="ans-content">
+                                    <input type="text"
+                                           class="form-control answer-input mb-2 shadow-sm"
+                                           name="answer_{{ ans.question.id }}"
+                                           value="{{ ans.answer|default:'' }}">
+                                    <!-- {% if ans.answered_by %}
+                                      <small class="text-muted">— {{ ans.answered_by }}</small>
+                                    {% endif %} -->
+                                  </div>
+                                </div>
+                              </li>
+                            {% empty %}
+                              <li>
+                                <div class="quest-body">
+                                  <div class="ans-content">
+                                    <p class="text-muted" style="padding-left:10px;">
+                                      No questions assigned.
+                                    </p>
+                                  </div>
+                                </div>
+                              </li>
+                            {% endfor %}
+
+                            <li>
+                              <div class="quest-body">
+                                <div class="quest-header">
+                                  <h6 class="my_span_color">Add Report</h6>
+                                </div>
+                                <div class="ans-content">
+                                  <input type="text" name="message" class="form-control"
+                                         placeholder="Add your feedback…" value="{{ my_report_message|default:'' }}" required>
+                                </div>
+                              </div>
+                            </li>
+                            <div class="send-btns">
+                                <div class="attach">
+                                  <button type="button"
+                                          class="btn btn-sm btn-outline-secondary button-wrapper">
+                                    <span class="label">Attach files</span>
+                                  </button>
+                                  <input type="file"
+                                        name="files"
+                                        multiple
+                                        class="d-none ticket-attachments-input">
+                                </div>
+                                <div class="upload-box small text-muted">
+                                  {% if my_report_file %}
+                                    Existing file:
+                                    <a href="{{ my_report_file.url }}" target="_blank">{{ my_report_file.name }}</a>
+                                  {% else %}
+                                    No files selected.
+                                  {% endif %}
+                                </div>
+                              </div>
+                            <li class="mt-2" style="margin-left:1.9rem;">
+                              <button type="submit" name="action" value="draft"
+                                      class="btn btn-warning shadow-sm">
+                                💾 Save Draft
+                              </button>
+                              <button type="submit" name="action" value="final"
+                                      class="btn btn-success shadow-sm">
+                                🚀 Submit
+                              </button>
+                            </li>
+                          </form>
+
+                        {# 2) Creator / owner / final -> read-only #}
+                        {% elif request.user == ticket.created_by or is_reassign_owner or reassignment.is_final %}
+                          {% if reassignment.is_final %}
+                            {% for ans in answers %}
+                              <li>
+                                <div class="quest-body">
+                                  <div class="quest-header">
+                                    <h6 class="my_span_color">
+                                      Q{{ forloop.counter }}. {{ ans.question.text }}
+                                    </h6>
+                                  </div>
+                                  <div class="ans-content">
+                                    <p style="padding-left:10px; color:#000;">
+                                      {{ ans.answer|default:"No answer provided" }}
+                                      {% if ans.answered_by %}
+                                        <small class="text-muted">— {{ ans.answered_by }}</small>
+                                      {% endif %}
+                                    </p>
+                                  </div>
+                                </div>
+                              </li>
+                            {% empty %}
+                              <li>
+                                <div class="quest-body">
+                                  <div class="ans-content">
+                                    <p class="text-muted" style="padding-left:10px;">
+                                      No questions assigned.
+                                    </p>
+                                  </div>
+                                </div>
+                              </li>
+                            {% endfor %}
+                          {% else %}
+                            <li>
+                              <div class="quest-body">
+                                <div class="ans-content">
+                                  <p class="text-muted" style="padding-left:10px;">
+                                    Questions & Answers are in Draft for this reassignment.
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                          {% endif %}
+
+                        {# 3) Others: no access #}
+                        {% else %}
+                          <li>
+                            <div class="quest-body">
+                              <div class="ans-content">
+                                <p class="text-muted" style="padding-left:10px;">
+                                  You don't have permissions to answer for this reassignment.
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        {% endif %}
+
+                      {# ================= NORMAL TICKET MODE ================= #}
+                      {% else %}
+
+                        {# ========== CREATOR VIEW: USER-WISE TAB SYSTEM ========== #}
+                        {% if is_creator and qa_by_user %}
+                          <li>
+                            <div class="quest-body">
+
+                              <!-- TABS HEADER -->
+                              <ul class="nav nav-tabs mb-3">
+                                {% for bundle in qa_by_user %}
+                                  {% with u=bundle.user %}
+                                    {% if active_user_id and u.id == active_user_id %}
+                                      <li class="nav-item">
+                                        <a class="nav-link active"
+                                           data-bs-toggle="tab"
+                                           href="#user-pane-{{ u.id }}">
+                                          {{ u.first_name }} {{ u.last_name }}
+                                        </a>
+                                      </li>
+                                    {% elif not active_user_id and forloop.first %}
+                                      <li class="nav-item">
+                                        <a class="nav-link active"
+                                           data-bs-toggle="tab"
+                                           href="#user-pane-{{ u.id }}">
+                                          {{ u.first_name }} {{ u.last_name }}
+                                        </a>
+                                      </li>
+                                    {% else %}
+                                      <li class="nav-item">
+                                        <a class="nav-link"
+                                           data-bs-toggle="tab"
+                                           href="#user-pane-{{ u.id }}">
+                                          {{ u.first_name }} {{ u.last_name }}
+                                        </a>
+                                      </li>
+                                    {% endif %}
+                                  {% endwith %}
+                                {% endfor %}
+                              </ul>
+
+                              <!-- TAB CONTENT -->
+                              <div class="tab-content">
+                                {% for bundle in qa_by_user %}
+                                  {% with u=bundle.user %}
+                                    {% if active_user_id and u.id == active_user_id %}
+                                      <div class="tab-pane fade show active" id="user-pane-{{ u.id }}">
+                                    {% elif not active_user_id and forloop.first %}
+                                      <div class="tab-pane fade show active" id="user-pane-{{ u.id }}">
+                                    {% else %}
+                                      <div class="tab-pane fade" id="user-pane-{{ u.id }}">
+                                    {% endif %}
+
+                                      {% for row in bundle.rows %}
+                                        <div class="quest-body mb-3">
+                                          <div class="quest-header">
+                                            <h6 class="my_span_color">
+                                              Q{{ forloop.counter }}. {{ row.question }}
+                                              {% if row.source %}
+                                                <small class="text-muted">({{ row.source }})</small>
+                                              {% endif %}
+                                            </h6>
+                                          </div>
+
+                                          <div class="ans-content" style="padding-left:10px;">
+                                            {# ✅ CURRENT ANSWER LINE #}
+                                            <p class="mb-1" style="color:#000;">
+                                              <strong>  {% if row.updated_at %} {{ row.updated_at|date:"d-m-Y " }} {% else %}  {{ row.created_at|date:"d-m-Y " }}  {% endif %}  → </strong>
+                                              <span>{{ row.answer|default:"No answer provided" }}</span>
+                                            </p>
+
+                                            {# ✅ PREVIOUS ANSWERS, IF ANY #}
+                                            {% if row.previous %}
+                                              <div class="mt-2">
+                                                <!-- <small class="text-muted d-block">    →</small> -->
+                                                <ul class="mb-0" style="padding-left:1rem;">
+                                                  {% for h in row.previous %}
+                                                    <li class="small">
+                                                      {% if h.updated_at %}
+                                                        {{ h.updated_at|date:"d-m-Y " }} →
+                                                      {% else %}
+                                                        {{ h.created_at|date:"d-m-Y " }} →
+                                                      {% endif %}
+                                                      {{ h.answer|default:"(blank)" }}
+                                                      {% if h.is_final %}
+                                                        <span class="badge bg-success bg-opacity-25 text-success ms-1">
+                                                          final
+                                                        </span>
+                                                      {% endif %}
+                                                    </li>
+                                                  {% endfor %}
+                                                </ul>
+                                              </div>
+                                            {% endif %}
+                                          </div>
+                                        </div>
+                                      {% endfor %}
+                                    </div>
+                                  {% endwith %}
+                                {% endfor %}
+                              </div>
+
+                            </div>
+                          </li>
+
+                        {# ========== CREATOR NON-TABS (fallback) ========== #}
+                        {% elif is_creator %}
+                          {% if ticket.is_final %}
+                            {% for ans in answers %}
+                              <li>
+                                <div class="quest-body">
+                                  <div class="quest-header">
+                                    <h6 class="my_span_color">
+                                      Q{{ forloop.counter }}. {{ ans.question.text }}
+                                    </h6>
+                                  </div>
+                                  <div class="ans-content">
+                                    <p style="padding-left:10px; color:#000;">
+                                      {{ ans.answer|default:"No answer provided" }}
+                                      {% if ans.answered_by %}
+                                        <small class="text-muted">— {{ ans.answered_by }}</small>
+                                      {% endif %}
+                                    </p>
+                                  </div>
+                                </div>
+                              </li>
+                            {% empty %}
+                              <li>
+                                <div class="quest-body">
+                                  <div class="ans-content">
+                                    <p class="text-muted" style="padding-left:10px;">
+                                      No questions assigned.
+                                    </p>
+                                  </div>
+                                </div>
+                              </li>
+                            {% endfor %}
+                          {% else %}
+                            <li>
+                              <div class="quest-body">
+                                <div class="ans-content">
+                                  <p class="text-muted" style="padding-left:10px;">
+                                    Pending… waiting for users.
+                                  </p>
+                                </div>
+                              </div>
+                            </li>
+                          {% endif %}
+
+                        {# ========== ASSIGNED USER (NON-CREATOR) ========== #}
+                          {% elif is_assignee and not is_creator %}
+
+                            {# If user cannot edit → read-only view #}
+                            {% if not can_edit_ticket %}
+                              {% for ans in answers %}
+                                <li>
+                                  <div class="quest-body">
+                                    <div class="quest-header">
+                                      <h6 class="my_span_color">
+                                        Q{{ forloop.counter }}. {{ ans.question.text }}
+                                      </h6>
+                                    </div>
+
+                                    <!-- ✅ CURRENT + PREVIOUS ANSWER FORMAT (READ ONLY) -->
+                                    <div class="ans-content" style="padding-left:10px;">
+                                    {# CURRENT ANSWER LINE WITH DATE/TIME #}
+                                    <p class="mb-1" style="color:#000;">
+                                      <strong>
+                                        {% if ans.updated_at %}
+                                          {{ ans.updated_at|date:"d-m-Y H:i" }} →
+                                        {% else %}
+                                           →
+                                        {% endif %}
+                                      </strong>
+                                      <span>{{ ans.answer|default:"No answer provided" }}</span>
+                                      {% if ans.answered_by %}
+                                        <small class="text-muted ms-2">({{ ans.answered_by }})</small>
+                                      {% endif %}
+                                    </p>
+
+                                    {# PREVIOUS ANSWERS LIST WITH DATE/TIME #}
+                                    {% if ans.old_versions %}
+                                      <div class="mt-2">
+                                        <!-- <small class="text-muted d-block">
+                                          Previous answer{{ ans.old_versions|length|pluralize }}:
+                                        </small> -->
+
+                                        <ul class="mb-0" style="padding-left:1rem;">
+                                          {% for h in ans.old_versions %}
+                                            <li class="small">
+                                              <strong>
+                                                {% if h.updated_at %}
+                                                  {{ h.updated_at|date:"d-m-Y H:i" }} →
+                                                {% else %}
+                                                  {{ h.created_at|date:"d-m-Y H:i" }} →
+                                                {% endif %}
+                                              </strong>
+                                              {{ h.answer|default:"(blank)" }}
+                                              {% if h.is_final %}
+                                                <span class="badge bg-success bg-opacity-25 text-success ms-1">final</span>
+                                              {% endif %}
+                                            </li>
+                                          {% endfor %}
+                                        </ul>
+                                      </div>
+                                    {% endif %}
+                                  </div>
+
+                                  </div>
+                                </li>
+                              {% empty %}
+                                <li>
+                                  <div class="quest-body">
+                                    <div class="ans-content">
+                                      <p class="text-muted" style="padding-left:10px;">
+                                        No questions assigned.
+                                      </p>
+                                    </div>
+                                  </div>
+                                </li>
+                              {% endfor %}
+
+                            {# User CAN still edit → show form with same wording #}
+                            {% else %}
+                              <form id="ticket-form-{{ ticket.id }}"
+                                    action="{% url 'tickets:submit_ticket_form' ticket.id %}"
+                                    method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+
+                                {% for ans in answers %}
+                                  <li>
+                                    <div class="quest-body">
+                                      <div class="quest-header">
+                                        <h6 class="my_span_color">
+                                          Q{{ forloop.counter }}. {{ ans.question.text }}
+                                        </h6>
+                                      </div>
+
+                                      <!-- ✅ CURRENT + PREVIOUS ANSWER FORMAT (EDITABLE) -->
+                                      <div class="ans-content">
+
+                                        {# label for current editable answer #}
+                                        <small class="text-muted d-block mb-1" style="padding-left:10px;">
+                                          {% if ans.answered_by %}
+                                             {{ ans.answered_by }} →
+                                          {% else %}
+                                            <!-- Current answer → -->
+                                          {% endif %}
+                                        </small>
+
+                                        {# input = current version (blank after reopen) #}
+                                        <input type="text"
+                                              class="form-control answer-input mb-2 shadow-sm"
+                                              name="answer_{{ ans.question.id }}"
+                                              value="{{ ans.answer|default:'' }}">
+
+                                        {# PREVIOUS ANSWERS BELOW #}
+                                        {% if ans.old_versions %}
+                                          <div class="mt-1" style="padding-left:10px;">
+                                            {% if ans.answered_by %}
+                                              <small class="text-muted d-block">
+                                                Previous answer{{ ans.old_versions|length|pluralize }} {{ ans.answered_by }} →
+                                              </small>
+                                            {% else %}
+                                              <small class="text-muted d-block">
+                                                Previous answer{{ ans.old_versions|length|pluralize }} →
+                                              </small>
+                                            {% endif %}
+
+                                            <ul class="mb-0" style="padding-left:1rem;">
+                                              {% for h in ans.old_versions %}
+                                                <li class="small">
+                                                  {{ h.answer|default:"(blank)" }}
+                                                  {% if h.is_final %}
+                                                    <span class="badge bg-success bg-opacity-25 text-success ms-1">final</span>
+                                                  {% endif %}
+                                                </li>
+                                              {% endfor %}
+                                            </ul>
+                                          </div>
+                                        {% endif %}
+                                      </div>
+                                    </div>
+                                  </li>
+                                {% empty %}
+                                  <li>
+                                    <div class="quest-body">
+                                      <div class="ans-content">
+                                        <p class="text-muted" style="padding-left:10px;">
+                                          No questions assigned.
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </li>
+                                {% endfor %}
+
+                                <li>
+                                  <div class="quest-body">
+                                    <div class="quest-header">
+                                      <h6 class="my_span_color"> Add Report</h6>
+                                    </div>
+                                    <div class="ans-content">
+                                      <input type="text" name="message" class="form-control"
+                                            placeholder=""
+                                            value="{{ my_report_message|default:'' }}" required>
+                                    </div>
+
+                                    <div class="send-btns">
+                                      <div class="attach">
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary button-wrapper">
+                                          <span class="label">Attach files</span>
+                                        </button>
+                                        <input type="file"
+                                              name="files"
+                                              multiple
+                                              class="d-none ticket-attachments-input">
+                                      </div>
+                                      <div class="upload-box small text-muted">
+                                        {% if my_report_file %}
+                                          Existing file:
+                                          <a href="{{ my_report_file.url }}" target="_blank">{{ my_report_file.name }}</a>
+                                        {% else %}
+                                          No files selected.
+                                        {% endif %}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </li>
+
+                                <li class="mt-2" style="margin-left:1.9rem;">
+                                  <button type="submit" name="action" value="draft"
+                                          class="btn btn-warning shadow-sm">
+                                    💾 Save Draft
+                                  </button>
+                                  <button type="submit" name="action" value="final"
+                                          class="btn btn-success shadow-sm">
+                                    🚀 Submit
+                                  </button>
+                                </li>
+                              </form>
+                            {% endif %}
+
+
+
+                        {# ========== NO ACCESS ========== #}
+                        {% else %}
+                          <li>
+                            <div class="quest-body">
+                              <div class="ans-content">
+                                <p class="text-muted" style="padding-left:10px;">
+                                  You don't have permissions to answer.
+                                </p>
+                              </div>
+                            </div>
+                          </li>
+                        {% endif %}
+
+                      {% endif %}
+                      {# /reassignment vs ticket #}
+                    </ul>
+                  </div>
+
+                  <!-- FEEDBACK / SUMMARY TAB -->
+                  <div class="col-md-12 grid-item feedback_summary pt-1 mt-3">
+                    <section class="message-area">
+                      <div class="quest-body">
+                        <div class="row">
+                          <div class="col-md-12">
+                            <div class="chat-area">
+                              <div class="chatbox">
+                                <div class="modal-dialog-scrollable">
+                                  <div class="modal-content">
+                                    <div class="msg-head">
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1 ms-3">
+                                              <h3 class="my_span_color">Suppliment Reply</h3>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div class="col-4">
+                                          <ul class="moreoption">
+                                            <li class="navbar nav-item dropdown">
+                                              <a class="nav-link dropdown-toggle" href="#"
+                                                 role="button" data-bs-toggle="dropdown"
+                                                 aria-expanded="false">
+                                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                              </a>
+                                              <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                              </ul>
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  <div class="modal-body my_modal_body">
+                                      {# ====== CHAT + SEND BOX LAYOUT FIX ====== #}
+                                      <style>
+                                        .feedback-thread {
+                                          display: flex;
+                                          flex-direction: column;
+                                          max-height: 400px;          /* adjust if you want more/less */
+                                        }
+
+                                        .feedback-thread .msg-body {
+                                          flex: 1 1 auto;
+                                          overflow-y: auto;
+                                          padding-right: 4px;
+                                        }
+
+                                        .feedback-thread .msg-body ul {
+                                          list-style: none;
+                                          padding-left: 0;
+                                          margin-bottom: 0;
+                                        }
+
+                                        .feedback-thread .send-box {
+                                          flex-shrink: 0;
+                                          margin-top: 0;
+                                          padding-top: 0.5rem;
+                                          border-top: 1px solid #eee;
+                                          background: #fff;
+                                        }
+                                      </style>
+
+                                      {# ================= CREATOR VIEW: TABS PER USER ================= #}
+                                      {% if is_creator %}
+
+                                        {% if fb_by_user %}
+                                          <!-- Tabs header -->
+                                          <ul class="nav nav-tabs mb-3" id="feedbackTabs">
+                                            {% for bundle in fb_by_user %}
+                                              {% with u=bundle.user %}
+                                                {% if fb_active_user_id and u.id == fb_active_user_id %}
+                                                  <li class="nav-item">
+                                                    <a class="nav-link active"
+                                                      data-bs-toggle="tab"
+                                                      href="#fb-pane-{{ u.id }}">
+                                                      {{ u.first_name }} {{ u.last_name }}
+                                                    </a>
+                                                  </li>
+                                                {% elif not fb_active_user_id and forloop.first %}
+                                                  <li class="nav-item">
+                                                    <a class="nav-link active"
+                                                      data-bs-toggle="tab"
+                                                      href="#fb-pane-{{ u.id }}">
+                                                      {{ u.first_name }} {{ u.last_name }}
+                                                    </a>
+                                                  </li>
+                                                {% else %}
+                                                  <li class="nav-item">
+                                                    <a class="nav-link"
+                                                      data-bs-toggle="tab"
+                                                      href="#fb-pane-{{ u.id }}">
+                                                      {{ u.first_name }} {{ u.last_name }}
+                                                    </a>
+                                                  </li>
+                                                {% endif %}
+                                              {% endwith %}
+                                            {% endfor %}
+                                          </ul>
+
+                                          <!-- Tabs content -->
+                                          <div class="tab-content">
+                                            {% for bundle in fb_by_user %}
+                                              {% with u=bundle.user rows=bundle.rows %}
+                                                {% if fb_active_user_id and u.id == fb_active_user_id %}
+                                                  <div class="tab-pane fade show active feedback-tab-pane" id="fb-pane-{{ u.id }}">
+                                                {% elif not fb_active_user_id and forloop.first %}
+                                                  <div class="tab-pane fade show active feedback-tab-pane" id="fb-pane-{{ u.id }}">
+                                                {% else %}
+                                                  <div class="tab-pane fade feedback-tab-pane" id="fb-pane-{{ u.id }}">
+                                                {% endif %}
+
+                                                    <div class="feedback-thread">
+                                                      {# ========== SCROLLABLE CHAT AREA ========== #}
+                                                      <div class="msg-body">
+                                                        <ul>
+                                                          {% if rows %}
+                                                            {% for row in rows %}
+                                                              <li class="{% if row.author.id == request.user.id %}repaly{% else %}sender{% endif %}">
+                                                                <p>
+                                                                  {% if row.author.id == request.user.id %}
+                                                                    <span style="color:#fffc8c;">You</span>
+                                                                  {% else %}
+                                                                    <span style="color:#0029ff;">
+                                                                      {{ row.author.first_name }} {{ row.author.last_name }}
+                                                                    </span>
+                                                                  {% endif %}
+                                                                  → {{ row.message|default:"" }}
+
+                                                                  {% if row.files %}
+                                                                    <br><br>
+                                                                    {% for f in row.files %}
+                                                                      <span class="chat_attach">
+                                                                        <svg width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                                                                          <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 0 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                                                                        </svg>
+                                                                        <a href="{{ f.file.url }}" target="_blank">{{ f.file.name }}</a>
+                                                                      </span>
+                                                                    {% endfor %}
+                                                                  {% endif %}
+                                                                </p>
+                                                                <span class="time">
+                                                                  {{ row.created_at|date:"d-m-Y H:i" }} ({{ row.source }})
+                                                                </span>
+                                                              </li>
+                                                            {% endfor %}
+                                                          {% else %}
+                                                            <li class="sender">
+                                                              <p class="text-muted">No data found</p>
+                                                            </li>
+                                                          {% endif %}
+                                                        </ul>
+                                                      </div>
+
+                                                      {# ========== SEND BOX (HORIZONTAL) ========== #}
+                                                      <div class="send-box">
+                                                        {% if ticket.status != "closed" %}
+                                                          <form id="ticket-feedback-form-{{ ticket.id }}" method="post"
+                                                                action="{% url 'tickets:create_ticket_feedback' ticket.id %}"
+                                                                enctype="multipart/form-data">
+                                                            {% csrf_token %}
+                                                            <input type="hidden" name="to_user_id" value="{{ u.id }}">
+
+                                                            <div class="input-group" style="width: 100%;">
+                                                              <!-- Message -->
+                                                              <input type="text"
+                                                                    name="message"
+                                                                    class="form-control"
+                                                                    placeholder="Reply to {{ u.first_name }} {{ u.last_name }}…"
+                                                                    required>
+
+                                                              <!-- File -->
+                                                              <input type="file"
+                                                                    name="files"
+                                                                    multiple
+                                                                    class="form-control form-control-sm"
+                                                                    style="max-width: 220px;">
+
+                                                              <!-- Button -->
+                                                              <button class="btn btn-primary btn-sm" type="submit">
+                                                                Send
+                                                              </button>
+                                                            </div>
+                                                          </form>
+                                                          
+                                                        {% else %}
+                                                          <input type="text"
+                                                                class="form-control"
+                                                                placeholder="Ticket is closed"
+                                                                disabled>
+                                                        {% endif %}
+                                                      </div>
+                                                    </div> {# /feedback-thread #}
+
+                                                  </div>  {# /tab-pane #}
+                                              {% endwith %}
+                                            {% endfor %}
+                                          </div>
+
+                                        {% else %}
+                                          <div class="feedback-thread">
+                                            <div class="msg-body">
+                                              <ul>
+                                                <li class="sender">
+                                                  <p class="text-muted">No data found</p>
+                                                </li>
+                                              </ul>
+                                            </div>
+                                          </div>
+                                        {% endif %}
+
+                                        
+                                      {# ================= ASSIGNEE VIEW: SINGLE THREAD WITH CREATOR ================= #}
+                                      {% else %}
+                                        <div class="feedback-thread">
+                                          {# scrollable chat #}
+                                          <div class="msg-body">
+                                            <ul>
+                                              {% if assignee_fb_rows %}
+                                                {% for row in assignee_fb_rows %}
+                                                  <li class="{% if row.author.id == request.user.id %}repaly{% else %}sender{% endif %}">
+                                                    <p>
+                                                      {% if row.author.id == request.user.id %}
+                                                        <span style="color:#fffc8c;">You</span>
+                                                      {% else %}
+                                                        <span style="color:#0029ff;">
+                                                          {{ row.author.first_name }} {{ row.author.last_name }}
+                                                        </span>
+                                                      {% endif %}
+                                                      → {{ row.message|default:"" }}
+
+                                                      {% if row.files %}
+                                                        <br><br>
+                                                        {% for f in row.files %}
+                                                          <span class="chat_attach">
+                                                            <svg width="16" height="16" fill="currentColor" class="bi bi-paperclip" viewBox="0 0 16 16">
+                                                              <path d="M4.5 3a2.5 2.5 0 0 1 5 0v9a1.5 1.5 0 0 1-3 0V5a.5.5 0 0 0 1 0v7a.5.5 0 0 0 1 0V3a1.5 1.5 0 1 0-3 0v9a2.5 2.5 0 0 0 5 0V5a.5.5 0 0 1 1 0v7a3.5 3.5 0 1 1-7 0z"/>
+                                                            </svg>
+                                                            <a href="{{ f.file.url }}" target="_blank">{{ f.file.name }}</a>
+                                                          </span>
+                                                        {% endfor %}
+                                                      {% endif %}
+                                                    </p>
+                                                    <span class="time">
+                                                      {{ row.created_at|date:"d-m-Y H:i" }} ({{ row.source }})
+                                                    </span>
+                                                  </li>
+                                                {% endfor %}
+                                              {% else %}
+                                                <li class="sender">
+                                                  <p class="text-muted">No data found</p>
+                                                </li>
+                                              {% endif %}
+                                            </ul>
+                                          </div>
+
+                                          {# send box #}
+                                          <div class="send-box">
+                                            {% if ticket.status != "closed" %}
+                                              <form method="post"
+                                                    id="ticket-feedback-form-{{ ticket.id }}"
+                                                    action="{% url 'tickets:create_ticket_feedback' ticket.id %}"
+                                                    enctype="multipart/form-data">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="to_user_id" value="{{ ticket.created_by.id }}">
+                                                <div class="input-group" style="width: 100%;">
+                                                  <input type="text"
+                                                        name="message"
+                                                        required
+                                                        class="form-control"
+                                                        placeholder="Add your feedback for creator…">
+                                                  <input type="file"
+                                                        name="files"
+                                                        multiple
+                                                        class="form-control form-control-sm"
+                                                        style="max-width: 220px;">
+                                                  <button class="btn btn-primary btn-sm" type="submit">Send</button>
+                                                </div>
+                                              </form>
+                                            {% else %}
+                                              <input type="text"
+                                                    class="form-control"
+                                                    placeholder="Ticket is closed"
+                                                    disabled>
+                                            {% endif %}
+                                          </div>
+                                        </div>
+                                      {% endif %}
+
+                                      {# === Script to control active tab highlight and pane (if any) === #}
+                                    </div>
+
+                              </div>
+                            </section>
+                          </div>
+
+
+
+                  <!-- STATUS HISTORY TAB -->
+                  <div class="col-md-12 grid-item status_history mt-3">
+                    <!-- ACTION BUTTONS -->
+                    <div class="col-md-12 mt-3 mb-3 text-end">
+                      {% if ticket.status != 'closed' and request.user == ticket.created_by %}
+                        <form id="close-ticket-form"
+                              action="{% url 'tickets:update_status' ticket.id %}"
+                              method="post" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="status" value="closed">
+                          <button type="button" id="close-ticket-btn" class="btn btn-danger .btn-primary " style="margin-right: 1rem;">
+                            <svg width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+                            </svg>
+                            Dispose Ticket
+                          </button>
+                        </form>
+                      {% endif %}
+
+                      {% if request.user == ticket.created_by and ticket.status == 'closed' %}
+                        <button id="reopenTicketBtn" class="btn btn-primary me-3"
+                                data-ticket-id="{{ ticket.id }}"
+                                {% if reassignment %}
+                                  data-reassign-id="{{ reassignment.id }}"
+                                {% endif %}
+                                data-bs-toggle="modal"
+                                data-bs-target="#reopenTicketModal" style="margin-right: 1rem;">
+                          <svg width="16" height="16" fill="currentColor"
+                              class="bi bi-envelope-open" viewBox="0 0 16 16">
+                            <path d="M8.47 1.318a1 1 0 0 0-.94 0l-6 3.2A1 1 0 0 0 1 5.4v.817l5.75 3.45L8 8.917l1.25.75L15 6.217V5.4a1 1 0 0 0-.53-.882zM15 7.383l-4.778 2.867L15 13.117zm-.035 6.88L8 10.082l-6.965 4.18A1 1 0 0 0 2 15h12a1 1 0 0 0 .965-.738ZM1 13.116l4.778-2.867L1 7.383v5.734ZM7.059.435a2 2 0 0 1 1.882 0l6 3.2A2 2 0 0 1 16 5.4V14a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5.4a2 2 0 0 1 1.059-1.765z"/>
+                          </svg>
+                          Reopen Ticket
+                        </button>
+                      {% endif %}
+                    </div>
+                    <ul class="timeline">
+                      {% for ev in timeline_events %}
+                        <li class="event">
+                          <div class="left-arrow"></div>
+                          <div class="time">
+                            {{ ev.at|date:"d M Y" }}<br>
+                            {{ ev.at|date:"H:i" }}
+                            <svg width="16" height="16" fill="currentColor"
+                                class="bi bi-alarm" viewBox="0 0 16 16">
+                              <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9z"/>
+                              <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1zm1.038 3.018a6 6 0 0 1 .924 0 6 6 0 1 1-.924 0M0 3.5c0 .753.333 1.429.86 1.887A8.04 8.04 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5M13.5 1c-.753 0-1.429.333-1.887.86a8.04 8.04 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1"/>
+                            </svg>
+                          </div>
+
+                          {% if ev.kind == "status" %}
+
+                            {% if ev.new_status|lower == "submitted" %}
+                              <h3>
+                                <span>
+                                  <strong class="badge" style="font-size: 15px; background-color:#e0f3ff; color:#0b5ed7;">
+                                    Answers submitted by {{ ev.by.first_name }}
+                                  </strong>
+                                </span>
+                              </h3>
+
+                            {% else %}
+                              <h3>
+                                <span>
+                                  <strong class="badge
+                                    {% if ev.old_status|lower == 'open' %}
+                                      status_open
+                                    {% elif ev.old_status|lower == 'closed' %}
+                                      status_closed
+                                    {% elif ev.old_status|lower == 'submitted' %}
+                                      status_submitted
+                                    {% elif ev.old_status|lower == 'reassigned' or ev.old_status|lower == 'reopened' %}
+                                      status_reopen
+                                    {% endif %}"
+                                    style="font-size: 15px;">
+                                    {{ ev.old_status|default:'-' }}
+                                  </strong>
+                                  →
+                                  <strong class="badge
+                                    {% if ev.new_status|lower == 'open' %}
+                                      status_open
+                                    {% elif ev.new_status|lower == 'closed' %}
+                                      status_closed
+                                    {% elif ev.new_status|lower == 'submitted' %}
+                                      status_submitted
+                                    {% elif ev.new_status|lower == 'reassigned' or ev.new_status|lower == 'reopened' %}
+                                      status_reopen
+                                    {% endif %}"
+                                    style="font-size: 15px;">
+                                    {{ ev.new_status }}
+                                  </strong>
+                                </span>
+                              </h3>
+                            {% endif %}
+
+                          {% endif %}
+
+                        </li>
+                      {% empty %}
+                        <li class="event">
+                          <div class="description">
+                            <p class="text-muted">No data found.</p>
+                          </div>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+
+                  <!-- CHANGE LOG TAB -->
+                  <div class="col-md-12 grid-item change_log mt-3">
+                    {% if osdl_parent %}
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="my_span_color mb-0" style="margin-left: 1.5rem;">
+                          Past Enquiry
+                        </h6>
+                        <span class="badge bg-secondary" style="margin-right: 1.5rem;">
+                          {{ osdl_logs_count|default:0 }}
+                        </span>
+                      </div>
+
+                      {% if osdl_logs_count %}
+                        <div class="list-group" style="margin-left: 1.5rem; margin-right: 1.5rem;">
+                          <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                              <div class="fw-semibold"></div>
+                            </div>
+
+                            <div class="mt-2">
+                              <div class="small text-muted mb-1">Old NGO Details</div>
+                              <div class="table-responsive">
+                                <table class="table table-sm table-bordered mb-2">
+                                  <thead>
+                                    <tr>
+                                      <th style="color:#020101!important;">RCN</th>
+                                      <th style="color:#020101!important;">PAN</th>
+                                      <th style="color:#020101!important;">Association Name</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for lg in osdl_logs %}
+                                      <tr>
+                                        <td>{{ lg.old_subset.rcn|default:"-" }}</td>
+                                        <td>{{ lg.old_subset.pan|default:"-" }}</td>
+                                        <td>{{ lg.old_subset.association_name|default:"-" }}</td>
+                                      </tr>
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% else %}
+                        <div class="alert alert-info py-2 px-3 mb-0">  No data found.</div>
+                      {% endif %}
+                    {% else %}
+                      <div class="alert alert-info py-2 px-3 mb-0">No data found.</div>
+                    {% endif %}
+                  </div>
+
+                  <!-- DOWNLOADS TAB -->
+                  <div class="col-md-12 grid-item downloads mt-3">
+                    <div class="card">
+                      <div class="card-body">
+                        <h6 class="mb-3">Downloads</h6>
+
+                        
+                          <div class="d-flex flex-wrap gap-2">
+                          {% if ticket.created_by == request.user %}
+                            <a class="btn btn-outline-primary"
+                              href="{% url 'tickets:pdf_rci_slip' ticket.id %}">
+                              RCI Slip
+                            </a>
+
+                            <a class="btn btn-outline-primary"
+                              href="{% url 'tickets:pdf_mha_reply' ticket.id %}">
+                              MHA Reply
+                            </a>
+
+                            <a class="btn btn-outline-primary"
+                              href="{% url 'tickets:pdf_letter_to_sib' ticket.id %}">
+                              Letter to SIB
+                            </a>
+
+                            <a class="btn btn-outline-success"
+                              href="{% url 'tickets:ticket_assignee_questions_pdf_with_answer' ticket.id %}">
+                              Replied from SIB
+                            </a>
+
+                            <!-- <a class="btn btn-outline-secondary"
+                              href="{% url 'tickets:ticket_pdfs_page' ticket.id %}">
+                              All PDFs Page -->
+                            </a>
+                          {% else %}
+                            <a class="btn btn-outline-success"
+                                href="{% url 'tickets:ticket_assignee_questions_pdf_with_answer' ticket.id %}">
+                                Replied from SIB
+                            </a>
+                          {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!--==================================================-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reopen Ticket Modal -->
+<!-- <div class="modal fade" id="reopenTicketModal" tabindex="-1"
+     aria-labelledby="reopenTicketModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="reopenTicketForm" method="POST"
+          action="{% url 'tickets:reopen_ticket' 0 %}">
+      {% csrf_token %}
+      <input type="hidden" id="reopenTicketId" name="ticket_id">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reopenTicketModalLabel">Reopen Ticket</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"
+                  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Reason for Reopening</label>
+            <textarea name="reason" class="form-control" required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Reopen Ticket</button>
+          <button type="button" class="btn btn-secondary"
+                  data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div> -->
+
+
+<div class="modal fade" id="reopenTicketModal" tabindex="-1" aria-labelledby="reopenTicketModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="reopenTicketForm" method="POST"  action="{% url 'tickets:reopen_ticket' 0 %}">
+      {% csrf_token %}
+      <input type="hidden" id="reopenTicketId" name="ticket_id">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reopenTicketModalLabel">Reopen SIB Query</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- REASON -->
+          <div class="mb-3">
+            <label class="form-label">Reason for Reopening</label>
+            <textarea name="reason" class="form-control" required></textarea>
+          </div>
+
+          <!-- NEW: SELECT USER -->
+          <div class="mb-3">
+            <label class="form-label">Reopen for which user?</label>
+            <select name="reopen_for_user" class="form-select" multiple required>
+              {% for u in ticket.assigned_users.all %}
+                <option value="{{ u.id }}">
+                  {{ u.first_name }} {{ u.last_name }}
+                </option>
+              {% endfor %}
+            </select>
+            <small class="text-muted">
+              Hold Ctrl (Windows) / Cmd (Mac) to select multiple users.
+            </small>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Reopen SIB Query</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'js/jquery.validate.js' %}"></script>
+<script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/select2.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/SweetAlert2.js' %}"></script>
+
+{# === UPDATED JS FOR FORMS (ticket + reassignment) === #}
+<script>
+  // Helper: are all (enabled) answer inputs non-empty *inside a specific form*?
+  function allAnswersFilled(form) {
+    let ok = true;
+    form.find(".answer-input").each(function () {
+      if ($(this).is(":disabled")) return; // ignore disabled inputs
+      if (!$(this).val() || $(this).val().trim() === "") {
+        ok = false;
+        return false; // break .each
+      }
+    });
+    return ok;
+  }
+
+  // Enable/disable the Final button for a specific form
+  function updateFinalButtonState(form) {
+    const enabled = allAnswersFilled(form);
+    const $finalBtn = form.find("button[name=action][value=final]");
+    $finalBtn.prop("disabled", !enabled);
+    $finalBtn.attr("aria-disabled", !enabled);
+  }
+
+  // Init state on load (handles prefilled answers) for ALL ticket/reassign forms
+  $(document).ready(function () {
+    $("form[id^='ticket-form'], form[id^='reassign-form']").each(function () {
+      updateFinalButtonState($(this));
+    });
+  });
+
+  // Re-evaluate whenever user types or changes answers (only affect its own form)
+  $(document).on("input change", ".answer-input", function () {
+    const form = $(this).closest("form");
+    updateFinalButtonState(form);
+  });
+
+  // Track which submit button was clicked (per form)
+  $(document).on("click",
+    "form[id^='ticket-form'] button[type=submit], form[id^='reassign-form'] button[type=submit]",
+    function () {
+      const form = $(this).closest("form");
+      form.find("button[type=submit]").removeAttr("clicked");
+      $(this).attr("clicked", "true");
+    }
+  );
+
+  // Intercept submit for both ticket and reassignment forms
+  $(document).on("submit", "form[id^='ticket-form'], form[id^='reassign-form']", function (e) {
+    e.preventDefault();
+    const form = $(this);
+    const actionType = form.find("button[type=submit][clicked=true]").val() || "draft";
+
+    // If trying to submit Final with blanks, block + notify
+    if (actionType === "final" && !allAnswersFilled(form)) {
+      Swal.fire({
+        title: "Incomplete answers",
+        text: "Please answer all questions before submitting as Final.",
+        icon: "info",
+      });
+      return; // don't proceed
+    }
+
+    if (actionType === "final") {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "Once submitted as Final, you will not be able to edit.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, submit final",
+        cancelButtonText: "Cancel"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          submitAjax(form);
+        }
+      });
+    } else {
+      // Draft can always go through
+      submitAjax(form);
+    }
+  });
+</script>
+
+<script>
+function submitAjax(form) {
+  // Scoped to the current form
+  let actionType = form.find("button[type=submit][clicked=true]").val() || "draft";
+
+  // Use FormData instead of serialize()
+  let formData = new FormData(form[0]);
+  formData.append("action", actionType);
+
+  $.ajax({
+    url: form.attr("action"),
+    type: "POST",
+    data: formData,
+    processData: false,  // required for files
+    contentType: false,  // required for files
+    headers: {
+      "X-CSRFToken": "{{ csrf_token }}"
+    },
+    success: function (response) {
+      console.log(response.redirect_url, "response.redirect_url");
+      if (response.redirect_url) {
+        if (response.is_final) {
+          form.find("input.answer-input").prop("disabled", true);
+          form.find("[name='message']").prop("disabled", true);
+          form.find("button[type=submit][value='final']").prop("disabled", true);
+          form.find("button[type=submit][value='draft']").hide();
+          window.location.href = response.redirect_url;
+        }
+      } else {
+        Swal.fire({
+          title: "Success!",
+          text: response.responseMessage,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        }).then(() => {
+          location.reload();
+        });
+      }
+    },
+    error: function () {
+      Swal.fire("Error!", "Something went wrong.", "error");
+    }
+  });
+}
+</script>
+
+{# === ATTACHMENTS CLICK + FILENAME DISPLAY === #}
+<script>
+  // Open file dialog when user clicks the "Attach files" button
+  $(document).on("click", ".send-btns .button-wrapper", function (e) {
+    e.preventDefault();
+    const form = $(this).closest("form");
+    const fileInput = form.find(".ticket-attachments-input");
+    if (!fileInput.is(":disabled")) {
+      fileInput.trigger("click");
+    }
+  });
+
+  // Show selected filenames in the upload-box
+  $(document).on("change", ".ticket-attachments-input", function () {
+    const files = this.files;
+    const form = $(this).closest("form");
+    const listBox = form.find(".upload-box");
+
+    if (!files || files.length === 0) {
+      listBox.text("No files selected.");
+      return;
+    }
+
+    const names = [];
+    for (let i = 0; i < files.length; i++) {
+      names.push(files[i].name);
+    }
+    listBox.text(names.join(", "));
+  });
+</script>
+
+<script>
+  $("#update-status-form").on("submit", function(e) {
+    e.preventDefault();
+    let form = $(this);
+    let url = form.attr("action");
+    let status = form.find("select[name='status']").val();
+
+    if (!status) {
+      Swal.fire({
+        icon: "warning",
+        title: "Status Required",
+        text: "Please select a status before submitting.",
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You are about to update the SIB Query status.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Update",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33"
+    }).then((result) => {
+      if (result.isConfirmed) {
+
+        $.ajax({
+          url: url,
+          type: "POST",
+          data: {
+            status: status,
+            csrfmiddlewaretoken: form.find("input[name='csrfmiddlewaretoken']").val()
+          },
+          beforeSend: function() {
+            Swal.fire({
+              title: "Updating...",
+              text: "Please wait while we update the status.",
+              didOpen: () => Swal.showLoading(),
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+            });
+          },
+          success: function(response) {
+            Swal.close();
+
+            if (response.responseCode === 200) {
+              Swal.fire({
+                icon: "success",
+                title: "Status Updated!",
+                text: response.responseMessage,
+                timer: 2000,
+                showConfirmButton: false
+              });
+
+              $(".badge.bg-info").text(response.new_status);
+
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Update Failed",
+                text: response.responseMessage,
+              });
+            }
+          },
+          error: function() {
+            Swal.close();
+            Swal.fire({
+              icon: "error",
+              title: "Something went wrong",
+              text: "Please try again later.",
+            });
+          }
+        });
+      }
+    });
+  });
+
+  // const reopenBtn = document.getElementById('reopenTicketBtn');
+  // const reopenModal = new bootstrap.Modal(document.getElementById('reopenTicketModal'));
+  // const reopenTicketIdInput = document.getElementById('reopenTicketId');
+
+  // reopenBtn?.addEventListener('click', function() {
+  //   const ticketId = this.getAttribute('data-ticket-id');
+  //   reopenTicketIdInput.value = ticketId;
+
+  //   // Update form action URL dynamically
+  //   const form = document.getElementById('reopenTicketForm');
+  //   form.action = `/tickets/reopen/${ticketId}/`;
+
+  //   reopenModal.show();
+  // });
+
+  // // AJAX submit reopen
+  // $('#reopenTicketForm').on('submit', function(e) {
+  //   e.preventDefault();
+  //   ReopensubmitAjax($(this));
+  // });
+
+  // function ReopensubmitAjax(form) {
+  //   let actionType = $("button[type=submit][clicked=true]").val() || "reopen";
+
+  //   $.ajax({
+  //     url: form.attr("action"),
+  //     type: "POST",
+  //     data: form.serialize() + "&action=" + actionType,
+  //     headers: {
+  //       "X-CSRFToken": getCookie('csrftoken')
+  //     },
+  //     success: function(response) {
+  //       if(response.responseCode === 200) {
+  //         Swal.fire({
+  //           title: "Success!",
+  //           text: response.responseMessage,
+  //           icon: "success",
+  //           timer: 2000,
+  //           showConfirmButton: false
+  //         }).then(() => {
+  //           location.reload();
+  //         });
+  //       } else {
+  //         Swal.fire("Error!", response.responseMessage, "error");
+  //       }
+  //     },
+  //     error: function() {
+  //       Swal.fire("Error!", "Something went wrong.", "error");
+  //     }
+  //   });
+  // }
+
+
+  const reopenBtn = document.getElementById('reopenTicketBtn');
+  const reopenModal = new bootstrap.Modal(document.getElementById('reopenTicketModal'));
+  const reopenTicketIdInput = document.getElementById('reopenTicketId');
+
+  reopenBtn?.addEventListener('click', function() {
+    const ticketId = this.getAttribute('data-ticket-id');
+    const reassignId = this.getAttribute('data-reassign-id');
+    reopenTicketIdInput.value = ticketId;
+    let action = `/tickets/reopen/${ticketId}/`;
+    if (reassignId) {
+      action += `?reassign=${reassignId}`;
+    }
+    // Update form action URL dynamically
+    const form = document.getElementById('reopenTicketForm');
+    form.action = action;
+
+    reopenModal.show();
+  });
+
+  $('#reopenTicketForm').on('submit', function(e) {
+    e.preventDefault();
+    ReopensubmitAjax($(this));
+  });
+
+  function ReopensubmitAjax(form) {
+    let actionType = $("button[type=submit][clicked=true]").val() || "reopen";
+
+    $.ajax({
+      url: form.attr("action"),
+      type: "POST",
+      data: form.serialize() + "&action=" + actionType,
+      headers: {
+        "X-CSRFToken": getCookie('csrftoken')
+      },
+      success: function(response) {
+        if(response.responseCode === 200) {
+          Swal.fire({
+            title: "Success!",
+            text: response.responseMessage,
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false
+          }).then(() => {
+            location.reload();
+          });
+        } else {
+          Swal.fire("Error!", response.responseMessage, "error");
+        }
+      },
+      error: function() {
+        Swal.fire("Error!", "Something went wrong.", "error");
+      }
+    });
+  }
+
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for(let i = 0; i < cookies.length; i++){
+        const cookie = cookies[i].trim();
+        if(cookie.startsWith(name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+</script>
+
+<script>
+  $("#close-ticket-btn").on("click", function(e) {
+    e.preventDefault();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you really want to dispose this SIB Query?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, dispose it"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let form = $("#close-ticket-form");
+        $.ajax({
+          url: form.attr("action"),
+          type: "POST",
+          data: form.serialize(),
+          success: function(response) {
+            if (response.responseCode === 200) {
+              Swal.fire({
+                title: "Dispose!",
+                text: response.responseMessage,
+                icon: "success",
+                confirmButtonText: "OK"
+              }).then(() => {
+                $(".badge.bg-info").text(response.new_status);
+                $("#close-ticket-btn").prop("disabled", true).text("Closed");
+                location.reload();
+              });
+            } else {
+              Swal.fire("Error", response.responseMessage, "error");
+            }
+          },
+          error: function() {
+            Swal.fire("Error", "Something went wrong.", "error");
+          }
+        });
+      }
+    });
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const filters = document.querySelectorAll(".menu-filtering li");
+    const items = document.querySelectorAll(".image_load .grid-item");
+
+    // Initially show first category items only (current_menu_item)
+    const activeFilter = document.querySelector(".menu-filtering .current_menu_item");
+    const initialFilter = activeFilter ? activeFilter.getAttribute("data-filter") : null;
+
+    if (initialFilter) {
+      items.forEach(item => {
+        if (item.classList.contains(initialFilter.slice(1))) {
+          item.style.display = "block";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    }
+    // Handle click event for filtering
+    filters.forEach(filter => {
+      filter.addEventListener("click", function() {
+        filters.forEach(f => f.classList.remove("current_menu_item"));
+        this.classList.add("current_menu_item");
+
+        const filterValue = this.getAttribute("data-filter");
+
+        items.forEach(item => {
+          if (item.classList.contains(filterValue.slice(1))) {
+            item.style.display = "block";
+            item.style.opacity = "1";
+            item.style.transform = "scale(1)";
+          } else {
+            item.style.display = "none";
+            item.style.opacity = "0";
+            item.style.transform = "scale(0.95)";
+          }
+        });
+      });
+    });
+  });
+</script>
+<script>
+    document.addEventListener('click', function (e) {
+      const link = e.target.closest('#feedbackTabs .nav-link');
+      if (!link) return;
+
+      e.preventDefault();
+
+      const targetId = link.getAttribute('href').slice(1); // "fb-pane-XX"
+
+      // 1) Update active class on tabs
+      document.querySelectorAll('#feedbackTabs .nav-link').forEach(function (el) {
+        el.classList.remove('active');
+      });
+      link.classList.add('active');
+
+      // 2) Update visible tab pane
+      document.querySelectorAll('.feedback-tab-pane').forEach(function (pane) {
+        pane.classList.remove('show', 'active');
+      });
+      const pane = document.getElementById(targetId);
+      if (pane) {
+        pane.classList.add('show', 'active');
+      }
+    });
+  </script>
+
+<script>
+(function () {
+  const form = document.getElementById('ticket-feedback-form-{{ ticket.id }}');
+  if (!form) return;
+  // alert('ssdsfsd');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const url = form.action;
+    const formData = new FormData(form);
+
+    fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'   // so view knows it's AJAX
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data.success) {
+        alert(data.error || 'Failed to send feedback.');
+        return;
+      }
+
+      // ✅ success
+      // Clear message + files, keep hidden fields/csrf defaults
+      location.reload();
+
+      // OPTIONAL: you can append the new message to the chat DOM here using `data`
+      // Example:
+      //   data.message
+      //   data.author_name
+      //   data.created_at
+      //   data.files (array of {url, name})
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Something went wrong while sending feedback.');
+    });
+  });
+})();
+</script>
+
+{% endblock %}
