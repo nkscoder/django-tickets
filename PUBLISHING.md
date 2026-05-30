@@ -24,6 +24,61 @@ Save the token locally (password manager). Do not commit it to Git.
 
 ---
 
+## Link GitHub → PyPI (automatic publish)
+
+PyPI does **not** have a “connect repository” button. You link them with **GitHub Actions**:
+
+### A. Add token to GitHub (one time)
+
+1. Open your repo: https://github.com/nkscoder/django-tickets  
+2. **Settings** → **Secrets and variables** → **Actions**  
+3. **New repository secret**  
+   - Name: `PYPI_API_TOKEN`  
+   - Value: your PyPI token (`pypi-...` from [manage account/token](https://pypi.org/manage/account/token/))  
+4. Save  
+
+### B. Push the workflow (included in this repo)
+
+File: `.github/workflows/publish-pypi.yml`
+
+```bash
+git add .github/workflows/publish-pypi.yml pyproject.toml
+git commit -m "Add GitHub Actions PyPI publish workflow"
+git push origin main
+```
+
+### C. First upload OR publish via release
+
+**Option 1 — Manual first upload** (so PyPI shows the project once):
+
+```bash
+python -m build
+twine upload dist/*
+```
+
+**Option 2 — Publish from GitHub** (after secret is set):
+
+1. On GitHub: **Releases** → **Create a new release**  
+2. Tag: `v1.0.0` (must match `version` in `pyproject.toml`)  
+3. Title: `v1.0.0` → **Publish release**  
+4. **Actions** tab → workflow **Publish to PyPI** should run green  
+5. Check https://pypi.org/project/django-tickets/
+
+**Option 3 — Run workflow manually**
+
+**Actions** → **Publish to PyPI** → **Run workflow**
+
+### Project URLs on PyPI
+
+After upload, PyPI reads links from `pyproject.toml`:
+
+- Homepage → GitHub repo  
+- Repository → GitHub repo  
+
+No extra linking step on pypi.org.
+
+---
+
 ## 3. Install build tools
 
 ```bash
