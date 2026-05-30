@@ -11,7 +11,7 @@ Self-contained plugin — uses Django’s user model and standard permissions on
 | **Site** | [nkscoder.in](https://nkscoder.in) |
 | **Package (PyPI)** | `nkscoder-django-tickets` |
 | **Django app** | `tickets` |
-| **Version** | 1.0.1 |
+| **Version** | 1.0.2 |
 | **License** | MIT |
 
 ---

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nkscoder-django-tickets"
-version = "1.0.1"
+version = "1.0.2"
 description = "Open-source Django ticket system by Nitesh Kumar Singh (nkscoder): assignments, Q&A, notifications & REST API. Generic plugin for any Django project."
 readme = "README.md"
 license = "MIT"
