@@ -1,0 +1,13 @@
+include LICENSE
+include README.md
+include pyproject.toml
+include PUBLISHING.md
+recursive-include templates/tickets *.html
+recursive-include templatetags *.py
+recursive-include migrations *.py
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude .DS_Store
+prune legacy_archive
+prune migrations_legacy
+prune templates/archive

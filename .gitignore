@@ -29,3 +29,9 @@ staticfiles/
 # Environment secrets
 .env
 .env.*
+
+# Packaging / PyPI
+dist/
+build/
+*.egg-info/
+.venv/

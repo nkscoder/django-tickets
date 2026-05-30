@@ -61,6 +61,23 @@ your-django-project/
 
 ---
 
+## Publish to PyPI
+
+To upload this package to [PyPI](https://pypi.org/) (account: [pypi.org/manage/account](https://pypi.org/manage/account/)):
+
+1. Create an API token at [pypi.org/manage/account/token](https://pypi.org/manage/account/token/)
+2. Build and upload — full steps in **[PUBLISHING.md](PUBLISHING.md)**
+
+```bash
+pip install build twine
+python -m build
+twine upload dist/*
+# Username: __token__
+# Password: <your-pypi-api-token>
+```
+
+---
+
 ## Setup in your Django project
 
 ### Step 1 — Add the app
@@ -71,10 +88,17 @@ your-django-project/
 cp -r /path/to/tickets /path/to/your-django-project/tickets
 ```
 
-**Option B — Install as package** (from this directory)
+**Option B — Install from PyPI** (after publish)
 
 ```bash
-cd /path/to/tickets
+pip install django-tickets
+```
+
+**Option C — Install from source** (development)
+
+```bash
+git clone https://github.com/nkscoder/django-tickets.git
+cd django-tickets
 pip install -e .
 ```
 

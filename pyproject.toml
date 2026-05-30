@@ -1,13 +1,13 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-tickets"
 version = "1.0.0"
-description = "Generic Django ticket system (Layer A core) by nkscoder.in"
+description = "Open-source Django ticket system: assignments, Q&A, notifications & REST API. Generic plugin for any Django project."
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.10"
 authors = [
     { name = "nkscoder.in", email = "contact@nkscoder.in" },
@@ -15,12 +15,13 @@ authors = [
 maintainers = [
     { name = "nkscoder.in", email = "contact@nkscoder.in" },
 ]
-keywords = ["django", "tickets", "workflow", "helpdesk", "nkscoder"]
+keywords = ["django", "tickets", "workflow", "helpdesk", "django-tickets", "nkscoder"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: Django",
     "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -36,13 +37,35 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://nkscoder.in"
-Documentation = "https://nkscoder.in"
-"Bug Reports" = "https://nkscoder.in"
+Homepage = "https://github.com/nkscoder/django-tickets"
+Documentation = "https://github.com/nkscoder/django-tickets#readme"
+Repository = "https://github.com/nkscoder/django-tickets"
+"Bug Tracker" = "https://github.com/nkscoder/django-tickets/issues"
+"Organization" = "https://nkscoder.in"
 
 [project.optional-dependencies]
-dev = ["pytest-django"]
+dev = ["pytest-django", "build", "twine"]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["tickets*"]
+[tool.setuptools]
+package-dir = { "tickets" = "." }
+packages = [
+    "tickets",
+    "tickets.views",
+    "tickets.templatetags",
+    "tickets.migrations",
+    "tickets.tests",
+]
+
+[tool.setuptools.package-data]
+tickets = [
+    "templates/tickets/**/*",
+    "templatetags/*.py",
+    "migrations/*",
+]
+
+[tool.setuptools.exclude-package-data]
+tickets = [
+    "legacy_archive/**/*",
+    "migrations_legacy/**/*",
+    "templates/archive/**/*",
+]
