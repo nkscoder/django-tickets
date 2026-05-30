@@ -3,8 +3,8 @@ requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "django-tickets"
-version = "1.0.0"
+name = "nkscoder-django-tickets"
+version = "1.0.1"
 description = "Open-source Django ticket system: assignments, Q&A, notifications & REST API. Generic plugin for any Django project."
 readme = "README.md"
 license = "MIT"

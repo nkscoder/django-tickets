@@ -8,8 +8,9 @@ Self-contained plugin — uses Django’s user model and standard permissions on
 | | |
 |---|---|
 | **Maintainer** | [nkscoder.in](https://nkscoder.in) |
-| **Package** | `django-tickets` |
-| **Version** | 1.0.0 |
+| **Package (PyPI)** | `nkscoder-django-tickets` |
+| **Django app** | `tickets` |
+| **Version** | 1.0.1 |
 | **License** | MIT |
 
 ---
@@ -91,7 +92,7 @@ cp -r /path/to/tickets /path/to/your-django-project/tickets
 **Option B — Install from PyPI** (after publish)
 
 ```bash
-pip install django-tickets
+pip install nkscoder-django-tickets
 ```
 
 **Option C — Install from source** (development)

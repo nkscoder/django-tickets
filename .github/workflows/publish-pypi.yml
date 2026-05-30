@@ -33,4 +33,9 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/*
+        run: |
+          if [ -z "$TWINE_PASSWORD" ]; then
+            echo "::error::Add PYPI_API_TOKEN in GitHub → Settings → Secrets → Actions"
+            exit 1
+          fi
+          twine upload dist/*
