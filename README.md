@@ -1,13 +1,14 @@
 # django-tickets
 
-**Organization:** [nkscoder.in](https://nkscoder.in)
+**Author:** [Nitesh Kumar Singh (nkscoder)](https://nkscoder.in)
 
-Generic, open-source ticket system for **any Django project**.  
+Generic, open-source Django ticket system by **Nitesh Kumar Singh (nkscoder)** — for **any Django project**.  
 Self-contained plugin — uses Django’s user model and standard permissions only.
 
 | | |
 |---|---|
-| **Maintainer** | [nkscoder.in](https://nkscoder.in) |
+| **Author / Maintainer** | [Nitesh Kumar Singh (nkscoder)](https://nkscoder.in) |
+| **Site** | [nkscoder.in](https://nkscoder.in) |
 | **Package (PyPI)** | `nkscoder-django-tickets` |
 | **Django app** | `tickets` |
 | **Version** | 1.0.1 |
@@ -394,9 +395,9 @@ Host-specific integrations (not used by this package) are stored under `legacy_a
 
 ---
 
-## About nkscoder.in
+## About the author
 
-This package is maintained by **[nkscoder.in](https://nkscoder.in)** as a reusable Django plugin for ticket workflows (assignments, Q&A, notifications, and status tracking).
+**Nitesh Kumar Singh (nkscoder)** maintains this package at **[nkscoder.in](https://nkscoder.in)** as a reusable Django plugin for ticket workflows (assignments, Q&A, notifications, and status tracking).
 
 For support, custom extensions (e.g. domain-specific modules), or integration help, visit [https://nkscoder.in](https://nkscoder.in).
 
@@ -404,6 +405,6 @@ For support, custom extensions (e.g. domain-specific modules), or integration he
 
 ## License
 
-Copyright © 2026 [nkscoder.in](https://nkscoder.in).
+Copyright © 2026 [Nitesh Kumar Singh (nkscoder)](https://nkscoder.in).
 
-Released under the [MIT License](LICENSE). You may use, copy, modify, and distribute this software with attribution to nkscoder.in.
+Released under the [MIT License](LICENSE). You may use, copy, modify, and distribute this software with attribution to Nitesh Kumar Singh (nkscoder).

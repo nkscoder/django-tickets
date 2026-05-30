@@ -1,6 +1,6 @@
 """Configurable settings for the generic tickets package.
 
-Organization: https://nkscoder.in
+Author: Nitesh Kumar Singh (nkscoder) — https://nkscoder.in
 """
 
 from django.conf import settings

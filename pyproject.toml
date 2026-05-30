@@ -5,17 +5,27 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nkscoder-django-tickets"
 version = "1.0.1"
-description = "Open-source Django ticket system: assignments, Q&A, notifications & REST API. Generic plugin for any Django project."
+description = "Open-source Django ticket system by Nitesh Kumar Singh (nkscoder): assignments, Q&A, notifications & REST API. Generic plugin for any Django project."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [
-    { name = "nkscoder.in", email = "contact@nkscoder.in" },
+    { name = "Nitesh Kumar Singh (nkscoder)", email = "contact@nkscoder.in" },
 ]
 maintainers = [
-    { name = "nkscoder.in", email = "contact@nkscoder.in" },
+    { name = "Nitesh Kumar Singh (nkscoder)", email = "contact@nkscoder.in" },
 ]
-keywords = ["django", "tickets", "workflow", "helpdesk", "django-tickets", "nkscoder"]
+keywords = [
+    "django",
+    "tickets",
+    "workflow",
+    "helpdesk",
+    "django-tickets",
+    "nitesh kumar singh",
+    "nitesh kumar singh nkscoder",
+    "nkscoder",
+    "nkscoder django",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: Django",
@@ -41,6 +51,7 @@ Documentation = "https://github.com/nkscoder/django-tickets#readme"
 Repository = "https://github.com/nkscoder/django-tickets"
 "Bug Tracker" = "https://github.com/nkscoder/django-tickets/issues"
 "Organization" = "https://nkscoder.in"
+"Author" = "https://nkscoder.in"
 
 [project.optional-dependencies]
 dev = ["pytest-django", "build", "twine"]

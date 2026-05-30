@@ -66,7 +66,12 @@ twine upload dist/*
 
 **Option 3 — Run workflow manually**
 
-**Actions** → **Publish to PyPI** → **Run workflow**
+**Actions** → **Publish to PyPI** → **Run workflow** (uses `main` branch)
+
+### Do NOT re-run release v1.0.0
+
+Tag `v1.0.0` still has PyPI name `django-tickets` (already taken on PyPI).  
+Always publish **v1.0.1** or newer from `main` (`nkscoder-django-tickets`).
 
 ### Project URLs on PyPI
 
