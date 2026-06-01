@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nkscoder-django-tickets"
-version = "1.0.2"
+version = "1.0.3"
 description = "Open-source Django ticket system by Nitesh Kumar Singh (nkscoder): assignments, Q&A, notifications & REST API. Generic plugin for any Django project."
 readme = "README.md"
 license = "MIT"
@@ -50,8 +50,10 @@ Homepage = "https://github.com/nkscoder/django-tickets"
 Documentation = "https://github.com/nkscoder/django-tickets#readme"
 Repository = "https://github.com/nkscoder/django-tickets"
 "Bug Tracker" = "https://github.com/nkscoder/django-tickets/issues"
-"Organization" = "https://nkscoder.in"
-"Author" = "https://nkscoder.in"
+"PyPI Profile" = "https://pypi.org/user/nkscoder/"
+"Author Website" = "https://nkscoder.in"
+"Author GitHub" = "https://github.com/nkscoder"
+"LinkedIn" = "https://www.linkedin.com/in/nitesh-kumar-singh-897437a2/"
 
 [project.optional-dependencies]
 dev = ["pytest-django", "build", "twine"]
